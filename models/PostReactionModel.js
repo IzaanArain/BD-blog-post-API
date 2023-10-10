@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const reactionSchema = new Schema({
+const postReactionSchema = new Schema({
   user_id: {
     type: mongoose.Schema.ObjectId,
     ref: "user",
@@ -24,4 +24,4 @@ const reactionSchema = new Schema({
     timestamps:true
 });
 
-module.exports = mongoose.model("reaction", reactionSchema);
+module.exports = mongoose.model("reaction", postReactionSchema);

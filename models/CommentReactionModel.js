@@ -6,9 +6,9 @@ const commentReactionSchema = new Schema({
     type: mongoose.Schema.ObjectId,
     ref: "user",
   },
-  post_id: {
+  comment_id: {
     type: mongoose.Schema.ObjectId,
-    ref: "post",
+    ref: "comment",
   },
   reaction_type: {
     type: String,

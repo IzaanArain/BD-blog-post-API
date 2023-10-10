@@ -5,6 +5,8 @@ const colors = require("colors");
 const UserRoutes=require("./routes/UserRoutes")
 
 const app = express();
+app.use(express.json())
+app.use(express.urlencoded({extended:false}))
 app.use("/api/v1/user",UserRoutes)
 
 PORT = process.env.PORT || 3000;
