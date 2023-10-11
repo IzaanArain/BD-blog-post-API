@@ -1,6 +1,6 @@
 const User = require("../models/UserModel");
 const CryptoJS = require("crypto-js");
-const {create_token}=require("../middleware/Auth")
+const { create_token } = require("../middleware/Auth");
 
 const register = async (req, res) => {
   try {
@@ -201,13 +201,16 @@ const login = async (req, res) => {
       });
     }
     const encrypted_password = user?.password;
-    const decrypt_password = CryptoJS.AES.decrypt(encrypted_password,process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8);
+    const decrypt_password = CryptoJS.AES.decrypt(
+      encrypted_password,
+      process.env.SECRET_KEY
+    ).toString(CryptoJS.enc.Utf8);
 
     if (typed_password === decrypt_password) {
       const user_id = user?._id;
       const token = create_token(user_id);
       const save_user_token = await User.findOneAndUpdate(
-        { _id:user_id },
+        { _id: user_id },
         { user_auth: token },
         { new: true }
       );
@@ -217,7 +220,6 @@ const login = async (req, res) => {
         message: "logged in successfully",
         data: save_user_token,
       });
-      
     } else {
       return res.status(400).send({
         status: 0,
@@ -228,13 +230,57 @@ const login = async (req, res) => {
     return res.status(500).send({
       status: 0,
       message: "Something went wrong",
+    });
+  }
+};
+
+const complete_profile = async (req, res) => {
+  try {
+    const { name, phone, image } = req.body;
+    if (!name) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter name",
+      });
+    } else if (!phone) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter phone number",
+      });
+    } else if (
+      !phone.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/)
+    ) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter valid phone number",
+      });
+    } else if (phone.length !== 11) {
+      return res.status(400).send({
+        status: 0,
+        message: "phone number must consist of 11 digits",
+      });
+    }
+  } catch (err) {
+    console.error("Error", err.message);
+    return res.status(500).send({
+      status: 0,
+      message: "Something went wrong",
       error: err.message,
     });
   }
 };
 
+const forgot_password=async(req,res)=>{
+};
+
+const reset_password=async(req,res)=>{
+}
+
 module.exports = {
   register,
   otp_verify,
   login,
+  complete_profile,
+  forgot_password,
+  reset_password,
 };
