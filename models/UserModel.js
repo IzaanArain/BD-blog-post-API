@@ -14,7 +14,6 @@ const userSchema=new Schema({
         type:String,
         default:"",
         required:[true,"please enter email"],
-        match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Please fill a valid password'],
     },
     role:{
         type:String,
@@ -37,7 +36,8 @@ const userSchema=new Schema({
     },
     otp_code:{
         type:Number,
-        default:""
+        default:"",
+        match:[/^[0-9]*$/,'Please enter valid otp']
     },
     is_verified:{
         type:Boolean,
