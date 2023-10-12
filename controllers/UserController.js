@@ -66,6 +66,7 @@ const register = async (req, res) => {
       });
     }
   } catch (err) {
+    console.error("Error", err.message);
     return res.status(500).send({
       status: 0,
       message: "Something went wrong",
@@ -126,14 +127,24 @@ const otp_verify = async (req, res) => {
       { new: true }
     );
     const { email, is_verified, is_forgot_password } = user_verfied;
-    res.status(200).send({
-      status: 1,
-      message: "OTP successfully verified",
-      email,
-      is_verified,
-      is_forgot_password,
-    });
+    if (is_forgot_password) {
+      res.status(200).send({
+        status: 1,
+        message: "OTP successfully verified",
+        email,
+        is_verified,
+        is_forgot_password,
+      });
+    } else {
+      res.status(200).send({
+        status: 1,
+        message: "OTP successfully verified",
+        email,
+        is_verified,
+      });
+    }
   } catch (err) {
+    console.error("Error", err.message);
     return res.status(500).send({
       status: 0,
       message: "Something went wrong",
@@ -234,30 +245,121 @@ const login = async (req, res) => {
   }
 };
 
-const complete_profile = async (req, res) => {
+const forgot_password = async (req, res) => {
   try {
-    const { name, phone, image } = req.body;
-    if (!name) {
+    const typed_email = req.body.email;
+    if (!typed_email) {
       return res.status(400).send({
         status: 0,
-        message: "please enter name",
-      });
-    } else if (!phone) {
-      return res.status(400).send({
-        status: 0,
-        message: "please enter phone number",
+        message: "please enter email",
       });
     } else if (
-      !phone.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/)
+      !typed_email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     ) {
       return res.status(400).send({
         status: 0,
-        message: "please enter valid phone number",
+        message: "please enter valid email",
       });
-    } else if (phone.length !== 11) {
+    }
+    const userExists = await User.findOne({ email: typed_email });
+    if (!userExists) {
+      return res.status(404).send({
+        status: 0,
+        message: "user not found",
+      });
+    }
+
+    const gen_otp_code = Math.floor(Math.random() * 900000) + 100000;
+
+    const user = await User.findOneAndUpdate(
+      { email: typed_email },
+      { otp_code: gen_otp_code, is_verified: false, is_forgot_password: true },
+      { new: true }
+    );
+    const { email, is_verified, is_forgot_password, otp_code } = user;
+    res.status(200).send({
+      status: 1,
+      message: "forgot password successfully",
+      email,
+      otp_code,
+      is_verified,
+      is_forgot_password,
+    });
+  } catch (err) {
+    console.error("Error", err.message);
+    return res.status(500).send({
+      status: 0,
+      message: "Something went wrong",
+    });
+  }
+};
+
+const reset_password = async (req, res) => {
+  try {
+    const { email: typed_email, password: typed_password } = req.body;
+    if (!typed_email) {
       return res.status(400).send({
         status: 0,
-        message: "phone number must consist of 11 digits",
+        message: "please enter email",
+      });
+    } else if (
+      !typed_email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
+    ) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter valid email",
+      });
+    } else if (!typed_password) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter password",
+      });
+    } else if (
+      !typed_password.match(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+      )
+    ) {
+      return res.status(400).send({
+        status: 0,
+        message:
+          "Password should include at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character.",
+      });
+    }
+    const user = await User.findOne({ email: typed_email });
+    if (!user) {
+      return res.status(404).send({
+        status: 0,
+        message: "user not found",
+      });
+    }
+    const userVerified = user?.is_verified;
+    if (!userVerified) {
+      return res.status(400).send({
+        status: 0,
+        message: "user is not verified",
+      });
+    }
+    const is_forgot_password = user?.is_forgot_password;
+    if (is_forgot_password) {
+      const user_id = user?._id;
+      const encrypted_password = CryptoJS.AES.encrypt(
+        typed_password,
+        process.env.SECRET_KEY
+      ).toString();
+      const user_updated = await User.findOneAndUpdate(
+        { _id: user_id },
+        { password: encrypted_password, is_forgot_password: false },
+        { new: true }
+      );
+
+      res.status(200).send({
+        status: 1,
+        message: "successfully reset password",
+      });
+    } else {
+      return res.status(400).send({
+        status: 0,
+        message: "reset password failed, please try again",
       });
     }
   } catch (err) {
@@ -270,11 +372,44 @@ const complete_profile = async (req, res) => {
   }
 };
 
-const forgot_password=async(req,res)=>{
-};
+const complete_profile = async (req, res) => {
+  try {
+    const { name, phone, image } = req.body;
+    // if (!name) {
+    //   return res.status(400).send({
+    //     status: 0,
+    //     message: "please enter name",
+    //   });
+    // } else if (!phone) {
+    //   return res.status(400).send({
+    //     status: 0,
+    //     message: "please enter phone number",
+    //   });
+    // } else if (
+    //   !phone.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/)
+    // ) {
+    //   return res.status(400).send({
+    //     status: 0,
+    //     message: "please enter valid phone number",
+    //   });
+    // } else if (phone.length !== 11) {
+    //   return res.status(400).send({
+    //     status: 0,
+    //     message: "phone number must consist of 11 digits",
+    //   });
+    // }
 
-const reset_password=async(req,res)=>{
-}
+    res.status(200).send({
+      message:"testing"
+    })
+  } catch (err) {
+    console.error("Error", err.message);
+    return res.status(500).send({
+      status: 0,
+      message: "Something went wrong",
+    });
+  }
+};
 
 module.exports = {
   register,
