@@ -4,7 +4,8 @@ const { create_token } = require("../middleware/Auth");
 
 const register = async (req, res) => {
   try {
-    const { email: typed_email, password: typed_password } = req.body;
+    const { email: typed_email, password: typed_password,role } = req.body;
+    const roles=["user","admin"]
     if (!typed_email) {
       return res.status(400).send({
         status: 0,
@@ -32,6 +33,18 @@ const register = async (req, res) => {
         message:
           "Password should include at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character.",
       });
+    }else if(!role){
+      return res.status(400).send({
+        status: 0,
+        message: "please select a role",
+      });
+    } 
+    const user_role=role.toLowerCase()
+    if(!roles.includes(user_role)){
+      return res.status(400).send({
+        status: 0,
+        message: "role can either user or admin",
+      });
     }
     const userExists = await User.findOne({ email: typed_email });
     if (userExists) {
@@ -49,6 +62,7 @@ const register = async (req, res) => {
     const user = await User.create({
       email: typed_email,
       password: encrypted_password,
+      role:user_role,
       otp_code: gen_otp_code,
     });
 
@@ -70,6 +84,7 @@ const register = async (req, res) => {
     return res.status(500).send({
       status: 0,
       message: "Something went wrong",
+
     });
   }
 };
@@ -530,6 +545,36 @@ const change_password = async (req, res) => {
   }
 };
 
+const delete_profile = async (req, res) => {
+  try {
+    const user_id=req.id;
+    const user = await User.findOne({ _id: user_id,role:"user"});
+    if (!user) {
+      return res.status(400).send({
+        status: 0,
+        message: "user not found",
+      });
+    }
+    const user_delete=await User.findOneAndUpdate(
+      {_id:user_id,role:"user"},
+      {is_delete:true},
+      {new:true}
+    );
+    const is_delete=user_delete.is_delete;
+    res.status(200).send({
+      status:0,
+      message:"User deleted successfully",
+      is_delete:is_delete
+    })
+  } catch (err) {
+    console.error("Error", err.message);
+    return res.status(500).send({
+      status: 0,
+      message: "Something went wrong",
+    });
+  }
+};
+
 module.exports = {
   register,
   otp_verify,
@@ -539,4 +584,5 @@ module.exports = {
   reset_password,
   edit_profile,
   change_password,
+  delete_profile
 };
