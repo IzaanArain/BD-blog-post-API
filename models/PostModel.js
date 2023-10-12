@@ -23,6 +23,10 @@ const postSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "user",
     },
+    is_delete:{
+      type: Boolean,
+      default: false,
+    },
     is_block: {
       type: Boolean,
       default: false,
