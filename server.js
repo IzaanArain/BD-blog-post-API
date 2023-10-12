@@ -8,6 +8,7 @@ const app = express();
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
 app.use("/api/v1/user",UserRoutes)
+app.use("/public",express.static("public"))
 
 PORT = process.env.PORT || 3000;
 Connect().then(() => {

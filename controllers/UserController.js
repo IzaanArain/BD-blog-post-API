@@ -374,33 +374,48 @@ const reset_password = async (req, res) => {
 
 const complete_profile = async (req, res) => {
   try {
-    const { name, phone, image } = req.body;
-    // if (!name) {
-    //   return res.status(400).send({
-    //     status: 0,
-    //     message: "please enter name",
-    //   });
-    // } else if (!phone) {
-    //   return res.status(400).send({
-    //     status: 0,
-    //     message: "please enter phone number",
-    //   });
-    // } else if (
-    //   !phone.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/)
-    // ) {
-    //   return res.status(400).send({
-    //     status: 0,
-    //     message: "please enter valid phone number",
-    //   });
-    // } else if (phone.length !== 11) {
-    //   return res.status(400).send({
-    //     status: 0,
-    //     message: "phone number must consist of 11 digits",
-    //   });
-    // }
-
+    const user_id = req?.id;
+    const { name, phone } = req.body;
+    if (!name) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter name",
+      });
+    } else if (!phone) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter phone number",
+      });
+    } else if (
+      !phone.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/)
+    ) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter valid phone number",
+      });
+    } else if (phone.length !== 11) {
+      return res.status(400).send({
+        status: 0,
+        message: "phone number must consist of 11 digits",
+      });
+    }
+    const user = await User.findOne({ _id: user_id });
+    if (!user) {
+      return res.status(404).send({
+        status: 0,
+        message: "user not found",
+      });
+    }
+    const image_path = req?.file?.path?.replace(/\\/g, "/");
+    const user_completed = await User.findByIdAndUpdate(
+      { _id: user_id },
+      { name: name, phone: phone, image: image_path },
+      { new: true }
+    );
     res.status(200).send({
-      message:"testing"
+      status:1,
+      message:"User profile completed successfully",
+      user:user_completed
     })
   } catch (err) {
     console.error("Error", err.message);
