@@ -1,10 +1,12 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/UserModel");
 
+// generating a token
 const create_token = (id) => {
   return jwt.sign({ id: id }, process.env.SECRET_TOKEN);
 };
 
+// validating the token
 const user_validate_token = async (req, res, next) => {
   try {
     const token = req?.headers?.authorization?.split(" ")[1];
