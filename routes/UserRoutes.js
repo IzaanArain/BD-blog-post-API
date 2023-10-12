@@ -3,9 +3,11 @@ const {
   register,
   otp_verify,
   login,
-  complete_profile,
   forgot_password,
   reset_password,
+  complete_profile,
+  edit_profile,
+  change_password
 } = require("../controllers/UserController");
 const { user_validate_token } = require("../middleware/Auth");
 const files=require("../middleware/Multer");
@@ -16,6 +18,9 @@ router.post("/otp_verify", otp_verify);
 router.post("/login", login);
 router.post("/forgot_password", forgot_password);
 router.post("/reset_password", reset_password);
-router.post("/complete_profile", user_validate_token,files.upload, complete_profile);
+router.post("/complete_profile", user_validate_token, files.upload, complete_profile);
+router.put("/edit_profile", user_validate_token, files.upload,edit_profile);
+router.put("/change_password", user_validate_token, files.upload, change_password);
+router.delete("/delete_profile", user_validate_token, )
 
 module.exports = router;
