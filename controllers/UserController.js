@@ -390,6 +390,7 @@ const reset_password = async (req, res) => {
 const complete_profile = async (req, res) => {
   try {
     const user_id = req?.id;
+    const allowed_image_types = ["image/png", "image/jpeg", "image/gif"];
     const { name, phone } = req.body;
     if (!name) {
       return res.status(400).send({
@@ -419,6 +420,16 @@ const complete_profile = async (req, res) => {
       return res.status(404).send({
         status: 0,
         message: "user not found",
+      });
+    }else if(!req.file){
+      return res.status(404).send({
+        status: 0,
+        message: "Profile image is required",
+      });
+    }else if(!allowed_image_types.includes(req?.file?.mimetype)){
+      return res.status(404).send({
+        status: 0,
+        message: "you can only upload .jpg .png .gif types",
       });
     }
     const image_path = req?.file?.path?.replace(/\\/g, "/");

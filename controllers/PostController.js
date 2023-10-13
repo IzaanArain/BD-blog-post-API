@@ -194,6 +194,7 @@ const get_user_posts = async (req, res) => {
         message: "user not found",
       });
     }
+    const user_email=user?.email;
     // const posts=await Post.find({post_author:user_id});
     //getting user's post with user's data
     const posts = await Post.aggregate([
@@ -235,11 +236,10 @@ const get_user_posts = async (req, res) => {
         },
       },
     ]);
-    console.log(posts);
     if (posts) {
       res.status(200).send({
         status: 0,
-        message: "got all user's posts",
+        message: `got all ${user_email} posts`,
         posts: posts,
       });
     } else {
