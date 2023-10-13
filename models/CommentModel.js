@@ -19,9 +19,21 @@ const commentSchema = new Schema(
       type: String,
       default: "",
     },
+    is_delete:{
+      type: Boolean,
+      default: false,
+    },
+    delete_date:{
+      type: String,
+      default: "",
+    },
     is_block: {
       type: Boolean,
       default: false,
+    },
+    block_date:{
+      type: String,
+      default: "",
     },
     comment_edited: {
       type: Boolean,

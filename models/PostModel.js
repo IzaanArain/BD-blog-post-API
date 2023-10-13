@@ -27,9 +27,17 @@ const postSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    delete_date:{
+      type: String,
+      default: "",
+    },
     is_block: {
       type: Boolean,
       default: false,
+    },
+    block_date:{
+      type: String,
+      default: "",
     },
     post_edited: {
       type: Boolean,
