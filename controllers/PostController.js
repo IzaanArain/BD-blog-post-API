@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Post = require("../models/PostModel");
 const User = require("../models/UserModel");
+const moment = require("moment");
 
 const create_post = async (req, res) => {
   try {
@@ -50,7 +51,6 @@ const get_post = async (req, res) => {
   try {
     const user_id = req.id;
     const post_id = req.query.post_id;
-
     const user = await User.findOne({ _id: user_id });
     if (!user) {
       return res.status(400).send({
@@ -140,8 +140,193 @@ const edit_post = async (req, res) => {
   }
 };
 
+const delete_post = async (req, res) => {
+  try {
+    const user_id = req.id;
+    const post_id = req.query.post_id;
+    const user = await User.findOne({ _id: user_id });
+    if (!user) {
+      return res.status(400).send({
+        status: 0,
+        message: "user not found",
+      });
+    } else if (!mongoose.isValidObjectId(post_id)) {
+      return res.status(400).send({
+        status: 0,
+        message: "not a valid post ID",
+      });
+    }
+    const post = await Post.findOne({ _id: post_id });
+    if (!post) {
+      return res.status(400).send({
+        status: 0,
+        message: "post not found",
+      });
+    }
+    const post_deleted = await Post.findOneAndUpdate(
+      { _id: post_id },
+      {
+        is_delete: true,
+        delete_date: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
+      },
+      { new: true }
+    );
+    res.status(200).send({
+      status: 1,
+      message: "post deleted successfully",
+    });
+  } catch (err) {
+    console.error("Error", err.message);
+    res.status(500).send({
+      status: 0,
+      message: "Something went wrong",
+    });
+  }
+};
+
+const get_user_posts = async (req, res) => {
+  try {
+    const user_id = req.id;
+    const user = await User.findOne({ _id: user_id });
+    if (!user) {
+      return res.status(400).send({
+        status: 0,
+        message: "user not found",
+      });
+    }
+    // const posts=await Post.find({post_author:user_id});
+    //getting user's post with user's data
+    const posts = await Post.aggregate([
+      {
+        $match: {
+          post_author: new mongoose.Types.ObjectId(user_id),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "post_author",
+          foreignField: "_id",
+          as: "result",
+        },
+      },
+      {
+        $unwind: {
+          path: "$result",
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          image: 1,
+          post_date: 1,
+          is_delete: 1,
+          delete_date: 1,
+          is_block: 1,
+          block_date: 1,
+          post_edited: 1,
+          post_edited_date: 1,
+          "result._id": 1,
+          "result.name": 1,
+          "result.email": 1,
+          "result.image": 1,
+          "result.role": 1,
+        },
+      },
+    ]);
+    console.log(posts);
+    if (posts) {
+      res.status(200).send({
+        status: 0,
+        message: "got all user's posts",
+        posts: posts,
+      });
+    } else {
+      res.status(200).send({
+        status: 0,
+        message: "No posts found for the user",
+      });
+    }
+  } catch (err) {
+    console.error("Error", err.message);
+    res.status(500).send({
+      status: 0,
+      message: "Something went wrong",
+    });
+  }
+};
+
+const get_all_posts = async (req, res) => {
+  try {
+    const user_id = req.id
+    const user = await User.findById(user_id);
+    if (!user) {
+      return res.status(400).send({
+        status: 0,
+        message: "user not found",
+      });
+    };
+    // const posts=await Post.find({});
+    const posts = await Post.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "post_author",
+          foreignField: "_id",
+          as: "result",
+        },
+      },    {
+        $unwind: {
+          path: "$result",
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          image: 1,
+          post_date: 1,
+          is_delete: 1,
+          delete_date: 1,
+          is_block: 1,
+          block_date: 1,
+          post_edited: 1,
+          post_edited_date: 1,
+          "result._id": 1,
+          "result.name": 1,
+          "result.email": 1,
+          "result.image": 1,
+          "result.role": 1,
+        },
+      },
+    ]);
+    if(posts){
+      res.status(200).send({
+        status: 0,
+        message: "got all user's posts",
+        posts: posts,
+      });
+    }else{
+      res.status(200).send({
+        status: 0,
+        message: "No posts found",
+      });
+    }
+  } catch (err) {
+    console.error("Error", err.message);
+    res.status(500).send({
+      status: 0,
+      message: "Something went wrong",
+    });
+  }
+};
+
 module.exports = {
   create_post,
   edit_post,
   get_post,
+  delete_post,
+  get_user_posts,
+  get_all_posts,
 };
