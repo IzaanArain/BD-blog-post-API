@@ -4,8 +4,8 @@ const { create_token } = require("../middleware/Auth");
 
 const register = async (req, res) => {
   try {
-    const { email: typed_email, password: typed_password,role } = req.body;
-    const roles=["user","admin"]
+    const { email: typed_email, password: typed_password, role } = req.body;
+    const roles = ["user", "admin"];
     if (!typed_email) {
       return res.status(400).send({
         status: 0,
@@ -33,14 +33,14 @@ const register = async (req, res) => {
         message:
           "Password should include at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character.",
       });
-    }else if(!role){
+    } else if (!role) {
       return res.status(400).send({
         status: 0,
         message: "please select a role",
       });
-    } 
-    const user_role=role.toLowerCase()
-    if(!roles.includes(user_role)){
+    }
+    const user_role = role.toLowerCase();
+    if (!roles.includes(user_role)) {
       return res.status(400).send({
         status: 0,
         message: "role can either user or admin",
@@ -62,7 +62,7 @@ const register = async (req, res) => {
     const user = await User.create({
       email: typed_email,
       password: encrypted_password,
-      role:user_role,
+      role: user_role,
       otp_code: gen_otp_code,
     });
 
@@ -84,7 +84,6 @@ const register = async (req, res) => {
     return res.status(500).send({
       status: 0,
       message: "Something went wrong",
-
     });
   }
 };
@@ -421,12 +420,12 @@ const complete_profile = async (req, res) => {
         status: 0,
         message: "user not found",
       });
-    }else if(!req.file){
+    } else if (!req.file) {
       return res.status(404).send({
         status: 0,
         message: "Profile image is required",
       });
-    }else if(!allowed_image_types.includes(req?.file?.mimetype)){
+    } else if (!allowed_image_types.includes(req?.file?.mimetype)) {
       return res.status(404).send({
         status: 0,
         message: "you can only upload .jpg .png .gif types",
@@ -455,7 +454,7 @@ const complete_profile = async (req, res) => {
 const edit_profile = async (req, res) => {
   try {
     const user_id = req?.id;
-    const { name, phone } = req.body;
+    const { name, phone, password: typed_password } = req.body;
     if (!name) {
       return res.status(400).send({
         status: 0,
@@ -478,39 +477,7 @@ const edit_profile = async (req, res) => {
         status: 0,
         message: "phone number must consist of 11 digits",
       });
-    }
-    const user = await User.findOne({ _id: user_id });
-    if (!user) {
-      return res.status(404).send({
-        status: 0,
-        message: "user not found",
-      });
-    }
-    const image_path = req?.file?.path?.replace(/\\/g, "/");
-    const user_updated = await User.findByIdAndUpdate(
-      { _id: user_id },
-      { name: name, phone: phone, image: image_path },
-      { new: true }
-    );
-    res.status(200).send({
-      status: 1,
-      message: "User profile successfully updated",
-      user: user_updated,
-    });
-  } catch (err) {
-    console.error("Error", err.message);
-    return res.status(500).send({
-      status: 0,
-      message: "Something went wrong",
-    });
-  }
-};
-
-const change_password = async (req, res) => {
-  try {
-    const user_id = req.id;
-    const typed_password = req.body.password;
-    if (!typed_password) {
+    } else if (!typed_password) {
       return res.status(400).send({
         status: 0,
         message: "please enter password",
@@ -528,25 +495,115 @@ const change_password = async (req, res) => {
     }
     const user = await User.findOne({ _id: user_id });
     if (!user) {
+      return res.status(404).send({
+        status: 0,
+        message: "user not found",
+      });
+    }
+    const password = user?.password;
+    const decrypt_password = CryptoJS.AES.decrypt(
+      password,
+      process.env.SECRET_KEY
+    ).toString(CryptoJS.enc.Utf16);
+    
+    if (typed_password === decrypt_password) {
+      const image_path = req?.file?.path?.replace(/\\/g, "/");
+      const user_updated = await User.findByIdAndUpdate(
+        { _id: user_id },
+        { name: name, phone: phone, image: image_path },
+        { new: true }
+      );
+      res.status(200).send({
+        status: 1,
+        message: "User profile successfully updated",
+        user: user_updated,
+      });
+    } else {
+      res.status(200).send({
+        status: 0,
+        message: "wrong password",
+      });
+    }
+  } catch (err) {
+    console.error("Error", err.message);
+    return res.status(500).send({
+      status: 0,
+      message: "Something went wrong",
+    });
+  }
+};
+
+const change_password = async (req, res) => {
+  try {
+    const user_id = req.id;
+    const current_password = req.body.password;
+    const new_password = req.body.new_password;
+    if (!current_password) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter current password",
+      });
+    } else if (!new_password) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter new password",
+      });
+    } else if (
+      !current_password.match(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+      )
+    ) {
+      return res.status(400).send({
+        status: 0,
+        message:
+          "Current Password should include at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character.",
+      });
+    } else if (
+      !new_password.match(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+      )
+    ) {
+      return res.status(400).send({
+        status: 0,
+        message:
+          "New Password should include at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character.",
+      });
+    }
+    const user = await User.findOne({ _id: user_id });
+    if (!user) {
       return res.status(400).send({
         status: 0,
         message: "user does not exist",
       });
     }
-    const encrypted_password = CryptoJS.AES.encrypt(
-      typed_password,
+    const user_password = user?.password;
+    const decrypted_password = CryptoJS.AES.decrypt(
+      user_password,
       process.env.SECRET_KEY
-    ).toString();
-    const user_updated = await User.findByIdAndUpdate(
-      { _id: user_id },
-      { password: encrypted_password },
-      { new: true }
-    );
-    res.status(200).send({
-      status: 1,
-      message: "password changed successfully",
-      user: user_updated,
-    });
+    ).toString(CryptoJS.enc.Utf16);
+
+    if (current_password === decrypted_password) {
+      const encrypted_password = CryptoJS.AES.encrypt(
+        new_password,
+        process.env.SECRET_KEY
+      ).toString();
+
+      const user_updated = await User.findByIdAndUpdate(
+        { _id: user_id },
+        { password: encrypted_password },
+        { new: true }
+      );
+      res.status(200).send({
+        status: 1,
+        message: "password changed successfully",
+        user: user_updated,
+      });
+    } else {
+      res.status(400).send({
+        status: 0,
+        message: "Wrong current password",
+      });
+    }
   } catch (err) {
     console.error("Error", err.message);
     return res.status(500).send({
@@ -558,25 +615,54 @@ const change_password = async (req, res) => {
 
 const delete_profile = async (req, res) => {
   try {
-    const user_id=req.id;
-    const user = await User.findOne({ _id: user_id,role:"user"});
+    const user_id = req.id;
+    const user_password = req.body.password;
+    const user = await User.findOne({ _id: user_id, role: "user" });
     if (!user) {
       return res.status(400).send({
         status: 0,
         message: "user not found",
       });
+    } else if (!user_password) {
+      return res.status(400).send({
+        status: 0,
+        message: "please enter password",
+      });
+    } else if (
+      !user_password.match(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+      )
+    ) {
+      return res.status(400).send({
+        status: 0,
+        message:
+          "Password should include at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character.",
+      });
     }
-    const user_delete=await User.findOneAndUpdate(
-      {_id:user_id,role:"user"},
-      {is_delete:true},
-      {new:true}
-    );
-    const is_delete=user_delete.is_delete;
-    res.status(200).send({
-      status:0,
-      message:"User deleted successfully",
-      is_delete:is_delete
-    })
+    const password = user?.password;
+    const decrypt_password = CryptoJS.AES.decrypt(
+      password,
+      process.env.SECRET_KEY
+    ).toString(CryptoJS.enc.Utf16);
+
+    if (user_password === decrypt_password) {
+      const user_delete = await User.findOneAndUpdate(
+        { _id: user_id, role: "user" },
+        { is_delete: true },
+        { new: true }
+      );
+      const is_delete = user_delete.is_delete;
+      res.status(200).send({
+        status: 0,
+        message: "User deleted successfully",
+        is_delete: is_delete,
+      });
+    } else {
+      res.status(200).send({
+        status: 0,
+        message: "wronge password",
+      });
+    }
   } catch (err) {
     console.error("Error", err.message);
     return res.status(500).send({
@@ -595,5 +681,5 @@ module.exports = {
   reset_password,
   edit_profile,
   change_password,
-  delete_profile
+  delete_profile,
 };
