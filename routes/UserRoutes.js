@@ -20,9 +20,11 @@ const {
   get_user_posts,
   get_all_posts
 } = require("../controllers/PostController");
+const { post_reaction,get_post_reactions } = require("../controllers/ReactionController");
+const { post_comment, edit_comment, delete_comment, get_post_comments } = require("../controllers/CommentController");
 
 const router = express.Router();
-
+// user routes
 router.post("/register", register);
 router.post("/otp_verify", otp_verify);
 router.post("/login", login);
@@ -36,8 +38,16 @@ router.delete("/delete_profile", user_validate_token, delete_profile);
 router.post("/create_post", user_validate_token, upload.single("post_image"), create_post);
 router.put("/get_post",user_validate_token, upload.single("post_image"), edit_post);
 router.get("/get_post",user_validate_token, get_post);
-router.delete("/delete_post",user_validate_token, delete_post)
+router.delete("/delete_post",user_validate_token, delete_post);
 router.get("/get_user_posts",user_validate_token, get_user_posts);
-router.get("/get_all_posts",user_validate_token, get_all_posts)
+router.get("/get_all_posts",user_validate_token, get_all_posts);
+// post reaction
+router.post("/post_reaction",user_validate_token,post_reaction);
+router.get("/all_reactions",user_validate_token,get_post_reactions);
+// post comment
+router.post("/post_comment",user_validate_token,post_comment);
+router.put("/edit_comment",user_validate_token,edit_comment);
+router.delete("/delete_comment",user_validate_token,delete_comment);
+router.get("/all_post_comment",user_validate_token,get_post_comments);
 
 module.exports = router;

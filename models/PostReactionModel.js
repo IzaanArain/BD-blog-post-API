@@ -12,7 +12,7 @@ const postReactionSchema = new Schema({
   },
   reaction_type: {
     type: String,
-    enum: ["like", "dislike"],
+    enum: ["like", "dislike","heart","no_reaction"],
     default: "",
   },
   reaction_date: {
