@@ -194,7 +194,7 @@ const get_user_posts = async (req, res) => {
         message: "user not found",
       });
     }
-    const user_email=user?.email;
+    const user_email = user?.email;
     // const posts=await Post.find({post_author:user_id});
     //getting user's post with user's data
     const posts = await Post.aggregate([
@@ -259,14 +259,14 @@ const get_user_posts = async (req, res) => {
 
 const get_all_posts = async (req, res) => {
   try {
-    const user_id = req.id
+    const user_id = req.id;
     const user = await User.findById(user_id);
     if (!user) {
       return res.status(400).send({
         status: 0,
         message: "user not found",
       });
-    };
+    }
     // const posts=await Post.find({});
     const posts = await Post.aggregate([
       {
@@ -276,9 +276,23 @@ const get_all_posts = async (req, res) => {
           foreignField: "_id",
           as: "result",
         },
-      },    {
+      },
+      {
         $unwind: {
           path: "$result",
+        },
+      },
+      {
+        $addFields: {
+          my_post: {
+            $cond: {
+              if: {
+                $eq: ["$result._id", new mongoose.Types.ObjectId(user_id)],
+              },
+              then: 1,
+              else: 0,
+            },
+          },
         },
       },
       {
@@ -293,6 +307,7 @@ const get_all_posts = async (req, res) => {
           block_date: 1,
           post_edited: 1,
           post_edited_date: 1,
+          my_post:1,
           "result._id": 1,
           "result.name": 1,
           "result.email": 1,
@@ -301,13 +316,13 @@ const get_all_posts = async (req, res) => {
         },
       },
     ]);
-    if(posts){
+    if (posts) {
       res.status(200).send({
         status: 0,
         message: "got all user's posts",
         posts: posts,
       });
-    }else{
+    } else {
       res.status(200).send({
         status: 0,
         message: "No posts found",

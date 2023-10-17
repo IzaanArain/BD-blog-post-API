@@ -57,6 +57,7 @@ const register = async (req, res) => {
       typed_password,
       process.env.SECRET_KEY
     ).toString();
+    
     const gen_otp_code = Math.floor(Math.random() * 900000) + 100000;
 
     const user = await User.create({

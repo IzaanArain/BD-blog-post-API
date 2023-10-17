@@ -54,6 +54,7 @@ const admin_delete_user = async (req, res) => {
     });
   }
 };
+
 const admin_block_user = async (req, res) => {
   try {
     const admin_id = req.id;
@@ -107,6 +108,7 @@ const admin_block_user = async (req, res) => {
     });
   }
 };
+
 const get_all_users = async (req, res) => {
   try {
     const admin_id = req.id;
@@ -133,9 +135,29 @@ const get_all_users = async (req, res) => {
     });
   }
 };
+// deletes and restores post
+const admin_delete_post=async(req,res)=>{
+
+};
+// blocks and unblocks post
+const admin_block_post=async(req,res)=>{
+  
+};
+// deletes and restores comment
+const admin_delete_comment=async(req,res)=>{
+
+};
+// blocks and unblocks comment
+const admin_block_comment=async(req,res)=>{
+
+};
 
 module.exports = {
   admin_delete_user,
   admin_block_user,
   get_all_users,
+  admin_delete_post,
+  admin_block_post,
+  admin_delete_comment,
+  admin_block_comment
 };

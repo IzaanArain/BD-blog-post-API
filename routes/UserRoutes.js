@@ -22,6 +22,7 @@ const {
 } = require("../controllers/PostController");
 const { post_reaction,get_post_reactions } = require("../controllers/ReactionController");
 const { post_comment, edit_comment, delete_comment, get_post_comments } = require("../controllers/CommentController");
+const { report_post,all_reported_post } = require("../controllers/ReportPostController");
 
 const router = express.Router();
 // user routes
@@ -49,5 +50,7 @@ router.post("/post_comment",user_validate_token,post_comment);
 router.put("/edit_comment",user_validate_token,edit_comment);
 router.delete("/delete_comment",user_validate_token,delete_comment);
 router.get("/all_post_comment",user_validate_token,get_post_comments);
-
+//report post
+router.post("/report_post",user_validate_token,report_post)
+router.get("/all_reported_post",user_validate_token,all_reported_post)
 module.exports = router;
