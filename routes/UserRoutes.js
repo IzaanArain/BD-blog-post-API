@@ -20,9 +20,10 @@ const {
   get_user_posts,
   get_all_posts
 } = require("../controllers/PostController");
-const { post_reaction,get_post_reactions } = require("../controllers/ReactionController");
+const { post_reaction,get_post_reactions, get_reaction_count } = require("../controllers/ReactionController");
 const { post_comment, edit_comment, delete_comment, get_post_comments } = require("../controllers/CommentController");
 const { report_post,all_reported_post } = require("../controllers/ReportPostController");
+const { favourite_post } = require("../controllers/FavouritePostController");
 
 const router = express.Router();
 // user routes
@@ -35,7 +36,7 @@ router.post("/complete_profile",user_validate_token, upload.single("profile_imag
 router.put("/edit_profile", user_validate_token, upload.single("profile_image"), edit_profile);
 router.put("/change_password", user_validate_token, change_password);
 router.delete("/delete_profile", user_validate_token, delete_profile);
-//post routes
+// post routes
 router.post("/create_post", user_validate_token, upload.single("post_image"), create_post);
 router.put("/get_post",user_validate_token, upload.single("post_image"), edit_post);
 router.get("/get_post",user_validate_token, get_post);
@@ -45,12 +46,16 @@ router.get("/get_all_posts",user_validate_token, get_all_posts);
 // post reaction
 router.post("/post_reaction",user_validate_token,post_reaction);
 router.get("/all_reactions",user_validate_token,get_post_reactions);
+router.get("/reactions_count",user_validate_token,get_reaction_count);
 // post comment
 router.post("/post_comment",user_validate_token,post_comment);
 router.put("/edit_comment",user_validate_token,edit_comment);
 router.delete("/delete_comment",user_validate_token,delete_comment);
 router.get("/all_post_comment",user_validate_token,get_post_comments);
 //report post
-router.post("/report_post",user_validate_token,report_post)
-router.get("/all_reported_post",user_validate_token,all_reported_post)
+router.post("/report_post",user_validate_token,report_post);
+router.get("/all_reported_post",user_validate_token,all_reported_post);
+// favourite post
+router.post("/favourite_post",user_validate_token,favourite_post);
+
 module.exports = router;

@@ -268,6 +268,55 @@ const get_all_posts = async (req, res) => {
       });
     }
     // const posts=await Post.find({});
+    // const posts = await Post.aggregate([
+    //   {
+    //     $lookup: {
+    //       from: "users",
+    //       localField: "post_author",
+    //       foreignField: "_id",
+    //       as: "result",
+    //     },
+    //   },
+    //   {
+    //     $unwind: {
+    //       path: "$result",
+    //     },
+    //   },
+    //   {
+    //     $addFields: {
+    //       my_post: {
+    //         $cond: {
+    //           if: {
+    //             $eq: ["$result._id", new mongoose.Types.ObjectId(user_id)],
+    //           },
+    //           then: 1,
+    //           else: 0,
+    //         },
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       title: 1,
+    //       description: 1,
+    //       image: 1,
+    //       post_date: 1,
+    //       is_delete: 1,
+    //       delete_date: 1,
+    //       is_block: 1,
+    //       block_date: 1,
+    //       post_edited: 1,
+    //       post_edited_date: 1,
+    //       my_post:1,
+    //       "result._id": 1,
+    //       "result.name": 1,
+    //       "result.email": 1,
+    //       "result.image": 1,
+    //       "result.role": 1,
+    //     },
+    //   },
+    // ]);
+    
     const posts = await Post.aggregate([
       {
         $lookup: {
@@ -283,7 +332,26 @@ const get_all_posts = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "reactions",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "reactions",
+        },
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "comments",
+        },
+      },
+      {
         $addFields: {
+          author_name: "$result.name",
+          author_email: "$result.email",
+          autor_image: "$result.image",
           my_post: {
             $cond: {
               if: {
@@ -293,27 +361,16 @@ const get_all_posts = async (req, res) => {
               else: 0,
             },
           },
+          total_reactions: {
+            $size: "$reactions",
+          },
+          total_comments: {
+            $size: "$comments",
+          },
         },
       },
       {
-        $project: {
-          title: 1,
-          description: 1,
-          image: 1,
-          post_date: 1,
-          is_delete: 1,
-          delete_date: 1,
-          is_block: 1,
-          block_date: 1,
-          post_edited: 1,
-          post_edited_date: 1,
-          my_post:1,
-          "result._id": 1,
-          "result.name": 1,
-          "result.email": 1,
-          "result.image": 1,
-          "result.role": 1,
-        },
+        $unset: ["result"],
       },
     ]);
     if (posts) {
