@@ -317,7 +317,7 @@ const get_post_reactions = async (req, res) => {
         $unset: ["result", "post"],
       },
     ]);
-    
+
     res.status(200).send({
       status: 1,
       message: "got all reactions!",
@@ -358,9 +358,7 @@ const get_reaction_count = async (req, res) => {
       });
     }
    
-    const reactions_count=await Reaction.aggregate([
-      
-    ])
+    const reactions_count=await Reaction.aggregate();
     return res.status(200).send({
       status: 1,
       message: "got all reactions!",
@@ -371,6 +369,7 @@ const get_reaction_count = async (req, res) => {
     return res.status(500).send({
       status: 0,
       message: "something went wronge",
+      error:err.message
     });
   }
 };
