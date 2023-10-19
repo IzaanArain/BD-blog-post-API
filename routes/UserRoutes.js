@@ -23,7 +23,7 @@ const {
 const { post_reaction,get_post_reactions, get_reaction_count } = require("../controllers/ReactionController");
 const { post_comment, edit_comment, delete_comment, get_post_comments } = require("../controllers/CommentController");
 const { report_post,all_reported_post } = require("../controllers/ReportPostController");
-const { favourite_post } = require("../controllers/FavouritePostController");
+const { favourite_post, get_favourite_posts } = require("../controllers/FavouritePostController");
 
 const router = express.Router();
 // user routes
@@ -57,5 +57,6 @@ router.post("/report_post",user_validate_token,report_post);
 router.get("/all_reported_post",user_validate_token,all_reported_post);
 // favourite post
 router.post("/favourite_post",user_validate_token,favourite_post);
+router.get("/get_favourite_posts",user_validate_token,get_favourite_posts);
 
 module.exports = router;

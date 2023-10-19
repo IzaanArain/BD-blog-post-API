@@ -93,7 +93,57 @@ const get_favourite_posts = async (req, res) => {
         message: "user not found",
       });
     }
-    const show_favourites = await FavouritePost.aggregate([]);
+    const show_favourites = await FavouritePost.aggregate([
+      {
+        $match: {
+          user_id: new mongoose.Types.ObjectId(user_id),
+        },
+      },
+      {
+        $lookup: {
+          from: "posts",
+          localField: "post_id",
+          foreignField: "_id",
+          as: "post",
+        },
+      },
+      {
+        $unwind: {
+          path: "$post",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+        },
+      },
+      {
+        $addFields: {
+          post_title: "$post.title",
+          post_description: "$post.description",
+          post_image: "$post.image",
+          user_email: "$user.email",
+          user_name: "$user.name",
+          user_image: "$user.image",
+        },
+      },
+      {
+        $unset: ["user", "post"],
+      },
+    ]);
+    return res.status(200).send({
+      status: 0,
+      message: "got all favourite post",
+      posts: show_favourites,
+    });
   } catch (err) {
     console.error("Error", err.message);
     return res.status(500).send({

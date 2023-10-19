@@ -2,7 +2,6 @@ const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    console.log("this is file", file);
     if (file.fieldname == "profile_image") {
       cb(null, "./public/profile_images");
     } else if (file.fieldname == "post_image") {
