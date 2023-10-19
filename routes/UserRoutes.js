@@ -20,7 +20,7 @@ const {
   get_user_posts,
   get_all_posts
 } = require("../controllers/PostController");
-const { post_reaction,get_post_reactions, get_reaction_count } = require("../controllers/ReactionController");
+const { post_reaction,get_post_reactions, post_reaction_count } = require("../controllers/ReactionController");
 const { post_comment, edit_comment, delete_comment, get_post_comments } = require("../controllers/CommentController");
 const { report_post,all_reported_post } = require("../controllers/ReportPostController");
 const { favourite_post, get_favourite_posts } = require("../controllers/FavouritePostController");
@@ -32,6 +32,7 @@ router.post("/otp_verify", otp_verify);
 router.post("/login", login);
 router.post("/forgot_password", forgot_password);
 router.post("/reset_password", reset_password);
+
 router.post("/complete_profile",user_validate_token, upload.single("profile_image"), complete_profile);
 router.put("/edit_profile", user_validate_token, upload.single("profile_image"), edit_profile);
 router.put("/change_password", user_validate_token, change_password);
@@ -46,7 +47,7 @@ router.get("/get_all_posts",user_validate_token, get_all_posts);
 // post reaction
 router.post("/post_reaction",user_validate_token,post_reaction);
 router.get("/all_reactions",user_validate_token,get_post_reactions);
-router.get("/reactions_count",user_validate_token,get_reaction_count);
+router.get("/reactions_count",user_validate_token,post_reaction_count);
 // post comment
 router.post("/post_comment",user_validate_token,post_comment);
 router.put("/edit_comment",user_validate_token,edit_comment);

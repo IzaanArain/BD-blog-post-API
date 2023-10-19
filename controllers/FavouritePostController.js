@@ -152,6 +152,7 @@ const get_favourite_posts = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   favourite_post,
   get_favourite_posts,

@@ -332,7 +332,7 @@ const get_post_reactions = async (req, res) => {
   }
 };
 
-const get_reaction_count = async (req, res) => {
+const post_reaction_count = async (req, res) => {
   try {
     const user_id = req.id;
     const post_id = req.query.post_id;
@@ -357,19 +357,117 @@ const get_reaction_count = async (req, res) => {
         message: "post not found",
       });
     }
-   
-    const reactions_count=await Reaction.aggregate();
+    const post_reactions = await Post.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(post_id),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "post_author",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+        },
+      },
+      {
+        $lookup: {
+          from: "reactions",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "reactions",
+        },
+      },
+      {
+        $addFields: {
+          post_reactions: {
+            $size: "$reactions",
+          },
+          likes: {
+            $size: {
+              $filter: {
+                input: "$reactions",
+                as: "reaction",
+                cond: {
+                  $eq: ["$$reaction.reaction_type", "like"],
+                },
+              },
+            },
+          },
+          dislikes: {
+            $size: {
+              $filter: {
+                input: "$reactions",
+                as: "reaction",
+                cond: {
+                  $eq: ["$$reaction.reaction_type", "dislike"],
+                },
+              },
+            },
+          },
+          hearts: {
+            $size: {
+              $filter: {
+                input: "$reactions",
+                as: "reaction",
+                cond: {
+                  $eq: ["$$reaction.reaction_type", "heart"],
+                },
+              },
+            },
+          },
+          post_author_reaction: {
+            $filter: {
+              input: "$reactions",
+              as: "reaction",
+              cond: {
+                $eq: ["$$reaction.user_id", "$post_author"],
+              },
+            },
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$post_author_reaction",
+        },
+      },
+      {
+        $addFields: {
+          my_reaction: "$post_author_reaction.reaction_type",
+          author_email: "$user.email",
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          post_date: 1,
+          author_email: 1,
+          post_reactions: 1,
+          likes: 1,
+          dislikes: 1,
+          hearts: 1,
+          my_reaction: 1,
+        },
+      },
+    ]);
     return res.status(200).send({
       status: 1,
       message: "got all reactions!",
-      reactions_count
+      post_reactions,
     });
   } catch (err) {
     console.error("Error", err.message);
     return res.status(500).send({
       status: 0,
       message: "something went wronge",
-      error:err.message
+      error: err.message,
     });
   }
 };
@@ -377,5 +475,5 @@ const get_reaction_count = async (req, res) => {
 module.exports = {
   post_reaction,
   get_post_reactions,
-  get_reaction_count,
+  post_reaction_count,
 };
