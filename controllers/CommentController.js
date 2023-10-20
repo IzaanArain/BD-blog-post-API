@@ -176,6 +176,7 @@ const get_post_comments = async (req, res) => {
     };
 
     const comments=await Comment.find({post_id:post_id});
+    
     return res.status(200).send({
         status:0,
         message:"got all post comments",
