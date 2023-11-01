@@ -13,7 +13,7 @@ app.use("/api/v1/admin",AdminRoutes);
 app.use("/public",express.static("public"));
 
 Connect().then(() => {
-  PORT =3000;
+  PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`Server Running on http://localhost:${PORT}/api/v1/user`);
     console.log(`Server Running on PORT ${PORT}`);
