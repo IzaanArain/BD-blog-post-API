@@ -22,6 +22,7 @@ const postSchema = new Schema(
     post_author: {
       type: Schema.Types.ObjectId,
       ref: "user",
+      default:null
     },
     is_delete:{
       type: Boolean,

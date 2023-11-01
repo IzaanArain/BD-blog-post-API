@@ -5,10 +5,12 @@ const postReactionSchema = new Schema({
   user_id: {
     type: mongoose.Schema.ObjectId,
     ref: "user",
+    default:null,
   },
   post_id: {
     type: mongoose.Schema.ObjectId,
     ref: "post",
+    default:null
   },
   reaction_type: {
     type: String,

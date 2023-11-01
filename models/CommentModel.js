@@ -10,10 +10,12 @@ const commentSchema = new Schema(
     post_id: {
       type: mongoose.Schema.ObjectId,
       ref: "post",
+      default:null
     },
     comment_author: {
       type: mongoose.Schema.ObjectId,
       ref: "user",
+      default:null
     },
     comment_date: {
       type: String,
