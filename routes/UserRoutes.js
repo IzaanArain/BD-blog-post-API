@@ -52,7 +52,7 @@ router.get("/reactions_count",user_validate_token,post_reaction_count);
 router.post("/post_comment",user_validate_token,post_comment);
 router.put("/edit_comment",user_validate_token,edit_comment);
 router.delete("/delete_comment",user_validate_token,delete_comment);
-router.get("/all_post_comment",user_validate_token,get_post_comments);
+router.get("/all_post_comments",user_validate_token,get_post_comments);
 //report post
 router.post("/report_post",user_validate_token,report_post);
 router.get("/all_reported_post",user_validate_token,all_reported_post);

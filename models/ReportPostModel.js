@@ -6,10 +6,12 @@ const reportPostSchema = new Schema(
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "user",
+      default:null
     },
     post_id: {
       type: mongoose.Types.ObjectId,
       ref: "post",
+      default:null
     },
     reported_text: {
       type: String,

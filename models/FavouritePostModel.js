@@ -6,10 +6,12 @@ const favouritePostSchema = new Schema(
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "user",
+      default:null
     },
     post_id: {
       type: mongoose.Types.ObjectId,
       ref: "post",
+      default:null
     },
     is_favourite: {
       type: Boolean,

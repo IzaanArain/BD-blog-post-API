@@ -2,7 +2,7 @@ const User = require("../models/UserModel");
 const Post = require("../models/PostModel");
 const Comment = require("../models/CommentModel");
 const mongoose = require("mongoose");
-const moment=require("moment");
+const moment = require("moment");
 
 const post_comment = async (req, res) => {
   try {
@@ -28,11 +28,11 @@ const post_comment = async (req, res) => {
         status: 0,
         message: "post not found",
       });
-    }else if(!comment_text){
-        return res.status(500).send({
-            status: 0,
-            message: "enter comment text",
-          });
+    } else if (!comment_text) {
+      return res.status(500).send({
+        status: 0,
+        message: "enter comment text",
+      });
     }
     const comment = await Comment.create({
       comment_text: comment_text,
@@ -153,35 +153,65 @@ const delete_comment = async (req, res) => {
 
 const get_post_comments = async (req, res) => {
   try {
-    const user_id=req.id;
-    const post_id=req.query.post_id;
-    const user=await User.findById(user_id);
-    if(user){
-        return res.status(500).send({
-          status: 0,
-          message: "user not found",
-        });
-    }else if(mongoose.isValidObjectId(post_id)){
-        return res.status(500).send({
-            status: 0,
-            message: "not valid post ID",
-          });
-    };
-    const post =await Post.findById(post_id)
-    if(!post){
-        return res.status(500).send({
-            status: 0,
-            message: "post not found",
-          });
-    };
+    const user_id = req.id;
+    const post_id = req.query.post_id;
+    const user = await User.findById(user_id);
+    if (!user) {
+      return res.status(500).send({
+        status: 0,
+        message: "user not found",
+      });
+    } else if (!mongoose.isValidObjectId(post_id)) {
+      return res.status(500).send({
+        status: 0,
+        message: "not valid post ID",
+      });
+    }
+    const post = await Post.findById(post_id);
+    if (!post) {
+      return res.status(500).send({
+        status: 0,
+        message: "post not found",
+      });
+    }
 
-    const comments=await Comment.find({post_id:post_id});
-    
+    // const comments=await Comment.find({post_id:post_id});
+    const comments = await Comment.aggregate([
+      {
+        $match: {
+          post_id: new mongoose.Types.ObjectId(post_id),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "comment_author",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+        },
+      },
+      {
+        $addFields: {
+          user_email: "$user.email",
+          user_name: "$user.name",
+          user_image: "$user.image",
+        },
+      },
+      {
+        $unset: ["user"],
+      },
+    ]);
+
     return res.status(200).send({
-        status:0,
-        message:"got all post comments",
-        comments:comments
-    })
+      status: 0,
+      message: "got all post comments",
+      comments: comments,
+    });
   } catch (err) {
     console.error("Error", err.message);
     return res.status(500).send({
