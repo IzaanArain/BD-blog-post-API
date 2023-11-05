@@ -39,7 +39,7 @@ router.put("/change_password", user_validate_token, change_password);
 router.delete("/delete_profile", user_validate_token, delete_profile);
 // post routes
 router.post("/create_post", user_validate_token, upload.single("post_image"), create_post);
-router.put("/get_post",user_validate_token, upload.single("post_image"), edit_post);
+router.put("/edit_post",user_validate_token, upload.single("post_image"), edit_post);
 router.get("/get_post",user_validate_token, get_post);
 router.delete("/delete_post",user_validate_token, delete_post);
 router.get("/get_user_posts",user_validate_token, get_user_posts);
