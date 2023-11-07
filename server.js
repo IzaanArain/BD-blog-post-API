@@ -7,7 +7,7 @@ const AdminRoutes = require("./routes/AdminRoutes");
 const http = require("http");
 const cors = require("cors");
 const Message = require("./models/MessageModel");
-const User=require("./models/UserModel")
+const User = require("./models/UserModel");
 const moment = require("moment");
 const mongoose = require("mongoose");
 
@@ -29,23 +29,24 @@ io.on("connection", (socket) => {
   socket.on("get_all_messages", async (data) => {
     try {
       const { sender_id, receiver_id } = data;
-      if (!sender_id) {
-        throw new Error("please enter sender_id");
-      }else if (!receiver_id) {
-        throw new Error("please receiver_id");
-      }else if(!mongoose.isValidObjectId(sender_id)){
-        throw new Error("Invalid sender_id");
-      }else if(!mongoose.isValidObjectId(receiver_id)){
-        throw new Error("Invalid receiver_id");
+      // Combine validation checks
+      if (!sender_id || !receiver_id) {
+        throw new Error("Please provide both sender_id and receiver_id.");
+      } else if (
+        !mongoose.isValidObjectId(sender_id) ||
+        !mongoose.isValidObjectId(receiver_id)
+      ) {
+        throw new Error("Invalid sender_id or receiver_id.");
       }
-      const sender=await User.findById(sender_id);
-      if(!sender){
-        throw new Error("sender not found");
-      };
-      const receiver=await User.findById(receiver_id);
-      if(!receiver){
-        throw new Error("receiver not found");
-      };
+      const [sender, receiver] = await Promise.all([
+        User.findById(sender_id),
+        User.findById(receiver_id),
+      ]);
+      if (!sender) {
+        throw new Error("Sender not found.");
+      } else if (!receiver) {
+        throw new Error("Receiver not found.");
+      }
       const room = `room${sender_id}${receiver_id}`;
       socket.join(room);
       console.log("get_all_messages : ", room);
@@ -84,21 +85,21 @@ io.on("connection", (socket) => {
       const { sender_id, receiver_id, message: typed_message } = data;
       if (!sender_id) {
         throw new Error("please enter sender_id");
-      }else if (!receiver_id) {
+      } else if (!receiver_id) {
         throw new Error("please receiver_id");
-      }else if(!mongoose.isValidObjectId(sender_id)){
+      } else if (!mongoose.isValidObjectId(sender_id)) {
         throw new Error("Invalid sender_id");
-      }else if(!mongoose.isValidObjectId(receiver_id)){
+      } else if (!mongoose.isValidObjectId(receiver_id)) {
         throw new Error("Invalid receiver_id");
       }
-      const sender=await User.findById(sender_id);
-      if(!sender){
+      const sender = await User.findById(sender_id);
+      if (!sender) {
         throw new Error("sender not found");
-      };
-      const receiver=await User.findById(receiver_id);
-      if(!receiver){
+      }
+      const receiver = await User.findById(receiver_id);
+      if (!receiver) {
         throw new Error("receiver not found");
-      };
+      }
       const room = `room${sender_id}${receiver_id}`;
       // socket.join(room);
       console.log("sender", room);
@@ -112,7 +113,7 @@ io.on("connection", (socket) => {
       const new_message = await message.save();
       // console.log(new_message)
       socket.to(room).emit("receive_message", new_message);
-    } catch(err) {
+    } catch (err) {
       console.error("Error", err.message);
       socket.emit("error_message", err.message);
     }
@@ -123,21 +124,21 @@ io.on("connection", (socket) => {
       const { sender_id, receiver_id, message: typed_message } = data;
       if (!sender_id) {
         throw new Error("please enter sender_id");
-      }else if (!receiver_id) {
+      } else if (!receiver_id) {
         throw new Error("please receiver_id");
-      }else if(!mongoose.isValidObjectId(sender_id)){
+      } else if (!mongoose.isValidObjectId(sender_id)) {
         throw new Error("Invalid sender_id");
-      }else if(!mongoose.isValidObjectId(receiver_id)){
+      } else if (!mongoose.isValidObjectId(receiver_id)) {
         throw new Error("Invalid receiver_id");
       }
-      const sender=await User.findById(sender_id);
-      if(!sender){
+      const sender = await User.findById(sender_id);
+      if (!sender) {
         throw new Error("sender not found");
-      };
-      const receiver=await User.findById(receiver_id);
-      if(!receiver){
+      }
+      const receiver = await User.findById(receiver_id);
+      if (!receiver) {
         throw new Error("receiver not found");
-      };
+      }
       const room = `room${receiver_id}${sender_id}`;
       // socket.join(room);
       console.log("receiver", room);
@@ -150,7 +151,7 @@ io.on("connection", (socket) => {
       });
       const new_message = await message.save();
       socket.to(room).emit("send_message", new_message);
-    } catch(err) {
+    } catch (err) {
       console.error("Error", err.message);
       socket.emit("error_message", err.message);
     }
@@ -159,7 +160,6 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
   });
-
 });
 
 Connect().then(() => {
