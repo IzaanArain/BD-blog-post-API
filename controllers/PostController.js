@@ -33,14 +33,14 @@ const create_post = async (req, res) => {
       post_date: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
       post_author: user_id,
     });
-    res.status(200).send({
+    return res.status(200).send({
       status: 1,
       message: "post successfully created",
       post: post,
     });
   } catch (err) {
     console.error("Error", err.message);
-    res.status(500).send({
+    return res.status(500).send({
       status: 0,
       message: "Something went wrong",
     });
@@ -78,7 +78,7 @@ const get_post = async (req, res) => {
     }
   } catch (err) {
     console.error("Error", err.message);
-    res.status(500).send({
+    return res.status(500).send({
       status: 0,
       message: "Something went wrong",
     });
@@ -171,13 +171,13 @@ const delete_post = async (req, res) => {
       },
       { new: true }
     );
-    res.status(200).send({
+    return res.status(200).send({
       status: 1,
       message: "post deleted successfully",
     });
   } catch (err) {
     console.error("Error", err.message);
-    res.status(500).send({
+    return res.status(500).send({
       status: 0,
       message: "Something went wrong",
     });
@@ -237,20 +237,20 @@ const get_user_posts = async (req, res) => {
       },
     ]);
     if (posts) {
-      res.status(200).send({
+      return res.status(200).send({
         status: 0,
         message: `got all ${user_email} posts`,
         posts: posts,
       });
     } else {
-      res.status(200).send({
+      return res.status(200).send({
         status: 0,
         message: "No posts found for the user",
       });
     }
   } catch (err) {
     console.error("Error", err.message);
-    res.status(500).send({
+    return res.status(500).send({
       status: 0,
       message: "Something went wrong",
     });
@@ -374,20 +374,20 @@ const get_all_posts = async (req, res) => {
       },
     ]);
     if (posts) {
-      res.status(200).send({
+      return res.status(200).send({
         status: 0,
         message: "got all user's posts",
         posts: posts,
       });
     } else {
-      res.status(200).send({
+      return res.status(200).send({
         status: 0,
         message: "No posts found",
       });
     }
   } catch (err) {
     console.error("Error", err.message);
-    res.status(500).send({
+    return res.status(500).send({
       status: 0,
       message: "Something went wrong",
     });
