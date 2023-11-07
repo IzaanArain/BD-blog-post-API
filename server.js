@@ -46,10 +46,12 @@ io.on("connection", (socket) => {
         throw new Error("Sender not found.");
       } else if (!receiver) {
         throw new Error("Receiver not found.");
-      }
+      };
       const room = `room${sender_id}${receiver_id}`;
       socket.join(room);
       console.log("get_all_messages : ", room);
+      console.log("room created",socket.rooms);
+
       const chat_messages = await Message.find({
         $or: [
           {
@@ -69,6 +71,7 @@ io.on("connection", (socket) => {
       // socket.to(room).emit("get_all_messages", chat_messages);
 
       if (chat_messages.length > 0) {
+        // socket.emit("get_all_messages", chat_messages);
         socket.to(room).emit("get_all_messages", chat_messages);
       } else {
         // Handle the case when no messages are found
