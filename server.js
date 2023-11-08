@@ -27,14 +27,6 @@ io.on("connection", (socket) => {
   console.log("user connected", socket.id);
   // socket.emit("serverConnected", "Server is connected");
 
-  socket.on("messages",(data)=>{
-    // socket.join(data.room)
-    socket.join(data.room)
-    console.log("room",socket.rooms)
-    // socket.emit("messages", "testing.....");
-    io.to(data.room).emit("messages", "testing.....");
-  });
-
   socket.on("get_all_messages", async (data) => {
     try {
       const { sender_id, receiver_id } = data;
@@ -170,6 +162,15 @@ io.on("connection", (socket) => {
       socket.emit("error_message", err.message);
     }
   });
+
+  // socket.on("messages",(data)=>{
+  //   // socket.join(data.room)
+  //   socket.join(data.room)
+  //   console.log("room",socket.rooms)
+  //   // socket.emit("messages", "testing.....");
+  //   io.to(data.room).emit("messages", "testing.....");
+  // });
+
 
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
