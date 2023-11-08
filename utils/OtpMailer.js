@@ -39,7 +39,7 @@ const OtpMailer = async (receiver_mail, otp_code) => {
 
     console.log("Message sent: %s", info.messageId);
   } catch (err) {
-    console.log("Something went wronge in OtpMailer");
+   return err
   }
 };
 

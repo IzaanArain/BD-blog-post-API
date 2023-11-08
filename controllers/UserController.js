@@ -59,7 +59,9 @@ const register = async (req, res) => {
     ).toString();
     
     const gen_otp_code = Math.floor(Math.random() * 900000) + 100000;
-    OtpMailer(typed_email,gen_otp_code);
+    if(typed_email && gen_otp_code){
+      OtpMailer(typed_email,gen_otp_code);
+    }
     const user = await User.create({
       email: typed_email,
       password: encrypted_password,
