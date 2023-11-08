@@ -90,6 +90,7 @@ io.on("connection", (socket) => {
   socket.on("send_message", async (data) => {
     try {
       const { sender_id, receiver_id, message: typed_message } = data;
+
       if (!sender_id) {
         throw new Error("please enter sender_id");
       } else if (!receiver_id) {
@@ -98,15 +99,15 @@ io.on("connection", (socket) => {
         throw new Error("Invalid sender_id");
       } else if (!mongoose.isValidObjectId(receiver_id)) {
         throw new Error("Invalid receiver_id");
-      }
+      };
       const sender = await User.findById(sender_id);
       if (!sender) {
         throw new Error("sender not found");
-      }
+      };
       const receiver = await User.findById(receiver_id);
       if (!receiver) {
         throw new Error("receiver not found");
-      }
+      };
       const room = `room${sender_id}${receiver_id}`;
       // socket.join(room);
       // console.log("sender", room);
@@ -129,6 +130,7 @@ io.on("connection", (socket) => {
   socket.on("receive_message", async (data) => {
     try {
       const { sender_id, receiver_id, message: typed_message } = data;
+      
       if (!sender_id) {
         throw new Error("please enter sender_id");
       } else if (!receiver_id) {
@@ -137,15 +139,15 @@ io.on("connection", (socket) => {
         throw new Error("Invalid sender_id");
       } else if (!mongoose.isValidObjectId(receiver_id)) {
         throw new Error("Invalid receiver_id");
-      }
+      };
       const sender = await User.findById(sender_id);
       if (!sender) {
         throw new Error("sender not found");
-      }
+      };
       const receiver = await User.findById(receiver_id);
       if (!receiver) {
         throw new Error("receiver not found");
-      }
+      };
       const room = `room${receiver_id}${sender_id}`;
       // socket.join(room);
       // console.log("receiver", room);
