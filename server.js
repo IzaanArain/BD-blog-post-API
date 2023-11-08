@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
         // socket.emit("get_all_messages", chat_messages);
         io.to(room).emit("get_all_messages", chat_messages);
       } else {
-        socket.to(room).emit("get_all_messages", []);
+        io.to(room).emit("get_all_messages", []);
       }
     } catch (err) {
       console.error("Error", err.message);
@@ -122,7 +122,8 @@ io.on("connection", (socket) => {
       });
       const new_message = await message.save();
       // console.log(new_message)
-      io.to(room).emit("receive_message", new_message);
+      socket.to(room).emit("receive_message", new_message);
+      // io.to(room).emit("receive_message", new_message);
     } catch (err) {
       console.error("Error", err.message);
       socket.emit("error_message", err.message);
@@ -162,7 +163,8 @@ io.on("connection", (socket) => {
         time: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
       });
       const new_message = await message.save();
-      io.to(room).emit("send_message", new_message);
+      socket.to(room).emit("send_message", new_message);
+      // io.to(room).emit("send_message", new_message);
     } catch (err) {
       console.error("Error", err.message);
       socket.emit("error_message", err.message);
