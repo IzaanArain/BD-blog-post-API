@@ -11,10 +11,6 @@ const messageSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       default: null,
     },
-    room:{
-        type:String,
-        default:""
-    },
     message:{
         type:String,
         default:""

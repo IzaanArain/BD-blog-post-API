@@ -2,6 +2,7 @@ const User = require("../models/UserModel");
 const CryptoJS = require("crypto-js");
 const { create_token } = require("../middleware/Auth");
 const OtpMailer=require("../utils/OtpMailer")
+
 const register = async (req, res) => {
   try {
     const { email: typed_email, password: typed_password, role } = req.body;

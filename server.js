@@ -25,11 +25,20 @@ app.use("/public", express.static("public"));
 
 io.on("connection", (socket) => {
   console.log("user connected", socket.id);
+  // socket.emit("serverConnected", "Server is connected");
+
+  socket.on("messages",(data)=>{
+    // socket.join(data.room)
+    socket.join(data.room)
+    console.log("room",socket.rooms)
+    // socket.emit("messages", "testing.....");
+    io.to(data.room).emit("messages", "testing.....");
+  });
 
   socket.on("get_all_messages", async (data) => {
     try {
       const { sender_id, receiver_id } = data;
-      // Combine validation checks
+
       if (!sender_id || !receiver_id) {
         throw new Error("Please provide both sender_id and receiver_id.");
       } else if (
@@ -37,7 +46,7 @@ io.on("connection", (socket) => {
         !mongoose.isValidObjectId(receiver_id)
       ) {
         throw new Error("Invalid sender_id or receiver_id.");
-      }
+      };
       const [sender, receiver] = await Promise.all([
         User.findById(sender_id),
         User.findById(receiver_id),
@@ -49,8 +58,6 @@ io.on("connection", (socket) => {
       };
       const room = `room${sender_id}${receiver_id}`;
       socket.join(room);
-      console.log("get_all_messages : ", room);
-      console.log("room created",socket.rooms);
       const chat_messages = await Message.find({
         $or: [
           {
@@ -65,16 +72,14 @@ io.on("connection", (socket) => {
         //   sender_id: new mongoose.Types.ObjectId(sender_id),
         //   receiver_id: new mongoose.Types.ObjectId(receiver_id),
       });
-      // console.log(chat_messages);
-      //socket.emit("get_all_messages", chat_messages);
-      // socket.to(room).emit("get_all_messages", chat_messages);
-
+      console.log(chat_messages.length);
       if (chat_messages.length > 0) {
+        console.log("get_all_messages : ", room);
+        console.log("room created", socket.rooms);
         // socket.emit("get_all_messages", chat_messages);
-        socket.to(room).emit("get_all_messages", chat_messages);
+        io.to(room).emit("get_all_messages", chat_messages);
       } else {
-        // Handle the case when no messages are found
-        socket.emit("get_all_messages", []);
+        socket.to(room).emit("get_all_messages", []);
       }
     } catch (err) {
       console.error("Error", err.message);
@@ -110,12 +115,11 @@ io.on("connection", (socket) => {
         sender_id: sender_id,
         receiver_id: receiver_id,
         message: typed_message,
-        room: room,
         time: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
       });
       const new_message = await message.save();
       // console.log(new_message)
-      socket.to(room).emit("receive_message", new_message);
+      io.to(room).emit("receive_message", new_message);
     } catch (err) {
       console.error("Error", err.message);
       socket.emit("error_message", err.message);
@@ -150,11 +154,10 @@ io.on("connection", (socket) => {
         sender_id: sender_id,
         receiver_id: receiver_id,
         message: typed_message,
-        room: room,
         time: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
       });
       const new_message = await message.save();
-      socket.to(room).emit("send_message", new_message);
+      io.to(room).emit("send_message", new_message);
     } catch (err) {
       console.error("Error", err.message);
       socket.emit("error_message", err.message);
@@ -164,7 +167,6 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
   });
-
 });
 
 Connect().then(() => {
