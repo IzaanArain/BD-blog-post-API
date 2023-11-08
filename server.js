@@ -56,7 +56,8 @@ io.on("connection", (socket) => {
       } else if (!receiver) {
         throw new Error("Receiver not found.");
       };
-      const room = `room${sender_id}${receiver_id}`;
+      // const room = `room${sender_id}${receiver_id}`;
+      const room = `room${[sender_id, receiver_id].sort().join('')}`;
       socket.join(room);
       const chat_messages = await Message.find({
         $or: [
@@ -108,7 +109,8 @@ io.on("connection", (socket) => {
       if (!receiver) {
         throw new Error("receiver not found");
       };
-      const room = `room${sender_id}${receiver_id}`;
+      // const room = `room${sender_id}${receiver_id}`;
+      const room = `room${[sender_id, receiver_id].sort().join('')}`;
       // socket.join(room);
       // console.log("sender", room);
       // console.log("room created",socket.rooms);
@@ -130,7 +132,7 @@ io.on("connection", (socket) => {
   socket.on("receive_message", async (data) => {
     try {
       const { sender_id, receiver_id, message: typed_message } = data;
-      
+
       if (!sender_id) {
         throw new Error("please enter sender_id");
       } else if (!receiver_id) {
@@ -148,7 +150,8 @@ io.on("connection", (socket) => {
       if (!receiver) {
         throw new Error("receiver not found");
       };
-      const room = `room${receiver_id}${sender_id}`;
+      // const room = `room${receiver_id}${sender_id}`;
+      const room = `room${[sender_id, receiver_id].sort().join('')}`;
       // socket.join(room);
       // console.log("receiver", room);
       // console.log("room created",socket.rooms);
