@@ -1,7 +1,7 @@
 const User = require("../models/UserModel");
 const CryptoJS = require("crypto-js");
 const { create_token } = require("../middleware/Auth");
-
+const OtpMailer=require("../utils/OtpMailer")
 const register = async (req, res) => {
   try {
     const { email: typed_email, password: typed_password, role } = req.body;
@@ -59,7 +59,7 @@ const register = async (req, res) => {
     ).toString();
     
     const gen_otp_code = Math.floor(Math.random() * 900000) + 100000;
-
+    OtpMailer(typed_email,gen_otp_code);
     const user = await User.create({
       email: typed_email,
       password: encrypted_password,

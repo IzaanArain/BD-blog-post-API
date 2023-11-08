@@ -51,7 +51,6 @@ io.on("connection", (socket) => {
       socket.join(room);
       console.log("get_all_messages : ", room);
       console.log("room created",socket.rooms);
-
       const chat_messages = await Message.find({
         $or: [
           {
@@ -105,7 +104,8 @@ io.on("connection", (socket) => {
       }
       const room = `room${sender_id}${receiver_id}`;
       // socket.join(room);
-      console.log("sender", room);
+      // console.log("sender", room);
+      // console.log("room created",socket.rooms);
       const message = new Message({
         sender_id: sender_id,
         receiver_id: receiver_id,
@@ -144,7 +144,8 @@ io.on("connection", (socket) => {
       }
       const room = `room${receiver_id}${sender_id}`;
       // socket.join(room);
-      console.log("receiver", room);
+      // console.log("receiver", room);
+      // console.log("room created",socket.rooms);
       const message = new Message({
         sender_id: sender_id,
         receiver_id: receiver_id,
@@ -163,6 +164,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
   });
+
 });
 
 Connect().then(() => {
