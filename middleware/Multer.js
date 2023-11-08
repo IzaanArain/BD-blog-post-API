@@ -6,16 +6,22 @@ const storage = multer.diskStorage({
       cb(null, "./public/profile_images");
     } else if (file.fieldname == "post_image") {
       cb(null, "./public/post_images");
-    }else if (file.fieldname == "post_video") {
+    } else if (file.fieldname == "post_video") {
       cb(null, "./public/post_videos");
-    }else if (file.fieldname == "post_audio") {
+    } else if (file.fieldname == "post_audio") {
       cb(null, "./public/post_audios");
     }
   },
   filename: function (req, file, cb) {
-    const filename = `${file.fieldname}-${Date.now()}-${Math.round(
-      Math.random() * 1e9
-    )}-${file.originalname.split(" ").join("-")}`;
+    const filename =
+      file.fieldname +
+      "-" +
+      Date.now() +
+      "-" +
+      Math.round(Math.random() * 1e9) +
+      "-" +
+      file.originalname.split(" ").join("-");
+
     cb(null, filename);
   },
 });
