@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 
 const socket = async (io) => {
   try {
+    
     io.on("connection", (socket) => {
       console.log("user connected", socket.id);
       // socket.emit("serverConnected", "Server is connected");
