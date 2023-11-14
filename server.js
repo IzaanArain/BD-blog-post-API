@@ -22,7 +22,7 @@ const io = new Server(server,{
   },
 });
 socket(io);
-app.use(express.json());
+app.use(express.json());                              
 app.use(express.urlencoded({ extended: false }));
 app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/admin", AdminRoutes);

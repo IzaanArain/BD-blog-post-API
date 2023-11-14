@@ -247,7 +247,7 @@ const login = async (req, res) => {
       res.status(200).send({
         status: 1,
         message: "logged in successfully",
-        data: save_user_token,
+        user: save_user_token,
       });
     } else {
       return res.status(400).send({
