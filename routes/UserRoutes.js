@@ -25,6 +25,7 @@ const { post_comment, edit_comment, delete_comment, get_post_comments } = requir
 const { report_post,all_reported_post } = require("../controllers/ReportPostController");
 const { favourite_post, get_favourite_posts } = require("../controllers/FavouritePostController");
 const { get_chat_messages } = require("../controllers/ChatController");
+const { get_all_users } = require("../controllers/AdminController");
 
 const router = express.Router();
 // user routes
@@ -62,5 +63,6 @@ router.post("/favourite_post",user_validate_token,favourite_post);
 router.get("/get_favourite_posts",user_validate_token,get_favourite_posts);
 // chat routes
 router.get("/chat_messages",user_validate_token,get_chat_messages);
-
+// GET users
+router.get("/all_users",user_validate_token,get_all_users)
 module.exports = router;

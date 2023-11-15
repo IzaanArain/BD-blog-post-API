@@ -111,22 +111,38 @@ const admin_block_user = async (req, res) => {
 
 const get_all_users = async (req, res) => {
   try {
-    const admin_id = req.id;
-    const admin = await User.findOne({ _id: admin_id, role: "admin" });
+    // const admin_id = req.id;
+    // const admin = await User.findOne({ _id: admin_id, role: "admin" });
 
-    if (admin) {
-      const users = await User.find({}).sort({ createdAt: -1 });
-      res.status(200).send({
-        status: 1,
-        message: "fetched all users successfully",
-        users: users,
-      });
-    } else {
-      return res.status(400).send({
-        status: 0,
-        message: "you are not admin",
-      });
-    }
+    // if (admin) {
+    //   const users = await User.find({}).sort({ createdAt: -1 });
+    //   res.status(200).send({
+    //     status: 1,
+    //     message: "fetched all users successfully",
+    //     users: users,
+    //   });
+    // } else {
+    //   return res.status(400).send({
+    //     status: 0,
+    //     message: "you are not admin",
+    //   });
+    // }
+    // const users=await User.find();
+    const users=await User.aggregate([
+      {
+        $project:{
+          "email":1,
+          "name":1,
+          "image":1,
+
+        }
+      }
+    ])
+    return res.status(500).send({
+      status: 1,
+      message: "fetched all users",
+      users,
+    });
   } catch (err) {
     console.error("Error", err.message);
     return res.status(500).send({
