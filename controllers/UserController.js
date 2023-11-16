@@ -95,6 +95,7 @@ const register = async (req, res) => {
 const otp_verify = async (req, res) => {
   try {
     const { email: typed_email, otp_code: typed_otp_code } = req.body;
+    
     if (!typed_email) {
       return res.status(400).send({
         status: 0,
@@ -133,7 +134,7 @@ const otp_verify = async (req, res) => {
     }
     const user_otp_code = user?.otp_code;
     if (parseInt(typed_otp_code) !== user_otp_code) {
-      return res.status(200).send({
+      return res.status(400).send({
         status: 0,
         message: "OTP does not match",
       });
