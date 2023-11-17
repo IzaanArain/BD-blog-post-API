@@ -147,7 +147,7 @@ const otp_verify = async (req, res) => {
     );
     const { email, is_verified, is_forgot_password } = user_verfied;
     if (is_forgot_password) {
-      res.status(200).send({
+      return res.status(200).send({
         status: 1,
         message: "OTP successfully verified",
         email,
@@ -155,7 +155,7 @@ const otp_verify = async (req, res) => {
         is_forgot_password,
       });
     } else {
-      res.status(200).send({
+      return res.status(200).send({
         status: 1,
         message: "OTP successfully verified",
         email,
