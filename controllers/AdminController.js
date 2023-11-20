@@ -138,7 +138,7 @@ const get_all_users = async (req, res) => {
         }
       }
     ])
-    return res.status(500).send({
+    return res.status(200).send({
       status: 1,
       message: "fetched all users",
       users,
