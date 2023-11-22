@@ -6,11 +6,8 @@ const UserRoutes = require("./routes/UserRoutes");
 const AdminRoutes = require("./routes/AdminRoutes");
 const http = require("http");
 const cors = require("cors");
-// const Message = require("./models/MessageModel");
-// const User = require("./models/UserModel");
-// const moment = require("moment");
-// const mongoose = require("mongoose");
-const socket=require("./utils/Socket")
+const socket=require("./utils/Socket");
+const newSocket=require("./utils/NewSocket");
 const app = express();
 app.use(cors());
 const server = http.createServer(app);

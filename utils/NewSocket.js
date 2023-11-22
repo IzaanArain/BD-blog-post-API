@@ -7,7 +7,7 @@ const socket = async (io) => {
   try {
 
     io.on("connection", (socket) => {
-      console.log("user connected", socket.id);
+      // console.log("user connected", socket.id);
       // socket.emit("serverConnected", "Server is connected");
 
       socket.on("get_all_messages", async (data) => {
@@ -48,10 +48,10 @@ const socket = async (io) => {
             //   sender_id: new mongoose.Types.ObjectId(sender_id),
             //   receiver_id: new mongoose.Types.ObjectId(receiver_id),
           });
-          console.log(chat_messages.length);
+        //   console.log(chat_messages.length);
           if (chat_messages.length > 0) {
-            console.log("get_all_messages : ", room);
-            console.log("room created", socket.rooms);
+            // console.log("get_all_messages : ", room);
+            // console.log("room created", socket.rooms);
             // socket.emit("get_all_messages", chat_messages);
             io.to(room).emit("get_all_messages", chat_messages);
           } else {
@@ -105,46 +105,46 @@ const socket = async (io) => {
         }
       });
 
-      socket.on("receive_message", async (data) => {
-        try {
-          const { sender_id, receiver_id, message: typed_message } = data;
+    //   socket.on("receive_message", async (data) => {
+    //     try {
+    //       const { sender_id, receiver_id, message: typed_message } = data;
 
-          if (!sender_id) {
-            throw new Error("please enter sender_id");
-          } else if (!receiver_id) {
-            throw new Error("please receiver_id");
-          } else if (!mongoose.isValidObjectId(sender_id)) {
-            throw new Error("Invalid sender_id");
-          } else if (!mongoose.isValidObjectId(receiver_id)) {
-            throw new Error("Invalid receiver_id");
-          }
-          const sender = await User.findById(sender_id);
-          if (!sender) {
-            throw new Error("sender not found");
-          }
-          const receiver = await User.findById(receiver_id);
-          if (!receiver) {
-            throw new Error("receiver not found");
-          }
-          // const room = `room${receiver_id}${sender_id}`;
-          const room = `room${[sender_id, receiver_id].sort().join("")}`;
-          // socket.join(room);
-          // console.log("receiver", room);
-          // console.log("room created",socket.rooms);
-          const message = new Message({
-            sender_id: sender_id,
-            receiver_id: receiver_id,
-            message: typed_message,
-            time: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
-          });
-          const new_message = await message.save();
-          socket.to(room).emit("send_message", new_message);
-          // io.to(room).emit("send_message", new_message);
-        } catch (err) {
-          console.error("Error", err.message);
-          socket.emit("error_message", err.message);
-        }
-      });
+    //       if (!sender_id) {
+    //         throw new Error("please enter sender_id");
+    //       } else if (!receiver_id) {
+    //         throw new Error("please receiver_id");
+    //       } else if (!mongoose.isValidObjectId(sender_id)) {
+    //         throw new Error("Invalid sender_id");
+    //       } else if (!mongoose.isValidObjectId(receiver_id)) {
+    //         throw new Error("Invalid receiver_id");
+    //       }
+    //       const sender = await User.findById(sender_id);
+    //       if (!sender) {
+    //         throw new Error("sender not found");
+    //       }
+    //       const receiver = await User.findById(receiver_id);
+    //       if (!receiver) {
+    //         throw new Error("receiver not found");
+    //       }
+    //       // const room = `room${receiver_id}${sender_id}`;
+    //       const room = `room${[sender_id, receiver_id].sort().join("")}`;
+    //       // socket.join(room);
+    //       // console.log("receiver", room);
+    //       // console.log("room created",socket.rooms);
+    //       const message = new Message({
+    //         sender_id: sender_id,
+    //         receiver_id: receiver_id,
+    //         message: typed_message,
+    //         time: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
+    //       });
+    //       const new_message = await message.save();
+    //       socket.to(room).emit("send_message", new_message);
+    //       // io.to(room).emit("send_message", new_message);
+    //     } catch (err) {
+    //       console.error("Error", err.message);
+    //       socket.emit("error_message", err.message);
+    //     }
+    //   });
 
       // socket.on("messages",(data)=>{
       //   // socket.join(data.room)
