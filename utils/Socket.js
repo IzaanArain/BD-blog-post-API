@@ -13,7 +13,7 @@ const socket = async (io) => {
       socket.on("get_all_messages", async (data) => {
         try {
           const { sender_id, receiver_id } = data;
-
+          console.log(data)
           if (!sender_id || !receiver_id) {
             throw new Error("Please provide both sender_id and receiver_id.");
           } else if (
