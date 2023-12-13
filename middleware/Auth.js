@@ -25,7 +25,7 @@ const user_validate_token = async (req, res, next) => {
     } else if (auth.is_blocked) {
       return res.status(404).send({
         status: 0,
-        Message: `${auth.email} is blocked, please contact admin`,
+        message: `${auth.email} is blocked, please contact admin`,
       });
     } else {
       const decoded = jwt.verify(token, process.env.SECRET_TOKEN);
