@@ -13,14 +13,14 @@ const user_validate_token = async (req, res, next) => {
     if (!token) {
       return res.status(500).send({
         status: 0,
-        Message: "token is required",
+        message: "token is required",
       });
     }
     const auth = await User.findOne({ user_auth: token });
     if (!auth) {
       return res.status(404).send({
         status: 0,
-        Message: "Not a valid token",
+        message: "Not a valid token",
       });
     } else if (auth.is_blocked) {
       return res.status(404).send({
@@ -36,7 +36,7 @@ const user_validate_token = async (req, res, next) => {
     console.log("Error", err);
    return res.status(500).send({
       status: 0,
-      Message: "Authentication failed",
+      message: "Authentication failed",
       Error: err,
     });
   }
