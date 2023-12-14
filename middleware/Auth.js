@@ -9,7 +9,7 @@ const create_token = (id) => {
 // validating the token
 const user_validate_token = async (req, res, next) => {
   try {
-    const token = req?.headers?.authorization?.split(" ")[1];
+    const token = req?.headers?.authorization?.split(" ")[1] || req?.headers?.["Authorization"]?.split(" ")[1];
     if (!token) {
       return res.status(500).send({
         status: 0,

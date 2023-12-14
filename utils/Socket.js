@@ -7,13 +7,13 @@ const socket = async (io) => {
   try {
 
     io.on("connection", (socket) => {
-      console.log("user connected", socket.id);
+      // console.log("user connected", socket.id);
       // socket.emit("serverConnected", "Server is connected");
 
       socket.on("get_all_messages", async (data) => {
         try {
           const { sender_id, receiver_id } = data;
-          console.log(data)
+          // console.log(data)
           if (!sender_id || !receiver_id) {
             throw new Error("Please provide both sender_id and receiver_id.");
           } else if (
@@ -48,17 +48,17 @@ const socket = async (io) => {
             //   sender_id: new mongoose.Types.ObjectId(sender_id),
             //   receiver_id: new mongoose.Types.ObjectId(receiver_id),
           });
-          console.log(chat_messages.length);
+          // console.log(chat_messages.length);
           if (chat_messages.length > 0) {
-            console.log("get_all_messages : ", room);
-            console.log("room created", socket.rooms);
+            // console.log("get_all_messages : ", room);
+            // console.log("room created", socket.rooms);
             // socket.emit("get_all_messages", chat_messages);
             io.to(room).emit("get_all_messages", chat_messages);
           } else {
             io.to(room).emit("get_all_messages", []);
           }
         } catch (err) {
-          console.error("Error", err.message);
+          // console.error("Error", err.message);
           socket.emit("error_message", err.message);
         }
       });
@@ -100,7 +100,7 @@ const socket = async (io) => {
           socket.to(room).emit("receive_message", new_message);
           // io.to(room).emit("receive_message", new_message);
         } catch (err) {
-          console.error("Error", err.message);
+          // console.error("Error", err.message);
           socket.emit("error_message", err.message);
         }
       });
@@ -141,7 +141,7 @@ const socket = async (io) => {
           socket.to(room).emit("send_message", new_message);
           // io.to(room).emit("send_message", new_message);
         } catch (err) {
-          console.error("Error", err.message);
+          // console.error("Error", err.message);
           socket.emit("error_message", err.message);
         }
       });
@@ -155,7 +155,7 @@ const socket = async (io) => {
       // });
 
       socket.on("disconnect", () => {
-        console.log("A user disconnected", socket.id);
+        // console.log("A user disconnected", socket.id);
       });
     });
   } catch (err) {
