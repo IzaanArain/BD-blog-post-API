@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 
 const socket = async (io) => {
   try {
-
     io.on("connection", (socket) => {
       console.log("A user connected", socket.id);
 
@@ -34,12 +33,12 @@ const socket = async (io) => {
           const chat_messages = await Message.find({
             $or: [
               {
-                sender_id:sender_id,
-                receiver_id:receiver_id,
+                sender_id: sender_id,
+                receiver_id: receiver_id,
               },
               {
-                sender_id:receiver_id,
-                receiver_id:sender_id,
+                sender_id: receiver_id,
+                receiver_id: sender_id,
               },
             ],
             //   sender_id: new mongoose.Types.ObjectId(sender_id),
@@ -157,4 +156,4 @@ const socket = async (io) => {
   }
 };
 
-module.exports=socket;
+module.exports = socket;
