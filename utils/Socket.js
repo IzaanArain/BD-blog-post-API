@@ -5,9 +5,9 @@ const mongoose = require("mongoose");
 
 const socket = async (io) => {
   try {
-
     io.on("connection", (socket) => {
-     
+      console.log("A user connected", socket.id);
+
       socket.on("get_all_messages", async (data) => {
         try {
           const { sender_id, receiver_id } = data;
@@ -33,12 +33,12 @@ const socket = async (io) => {
           const chat_messages = await Message.find({
             $or: [
               {
-                sender_id:sender_id,
-                receiver_id:receiver_id,
+                sender_id: sender_id,
+                receiver_id: receiver_id,
               },
               {
-                sender_id:receiver_id,
-                receiver_id:sender_id,
+                sender_id: receiver_id,
+                receiver_id: sender_id,
               },
             ],
             //   sender_id: new mongoose.Types.ObjectId(sender_id),
@@ -90,8 +90,8 @@ const socket = async (io) => {
           });
           const new_message = await message.save();
           // console.log("message created",new_message)
-          socket.to(room).emit("receive_message", new_message);
-          // io.to(room).emit("receive_message", new_message);
+          // socket.to(room).emit("receive_message", new_message);
+          io.to(room).emit("receive_message", new_message);
         } catch (err) {
           console.error("Error", err.message);
           socket.emit("error_message", err.message);
@@ -148,7 +148,7 @@ const socket = async (io) => {
       // });
 
       socket.on("disconnect", () => {
-        // console.log("A user disconnected", socket.id);
+        console.log("A user disconnected", socket.id);
       });
     });
   } catch (err) {
@@ -156,4 +156,4 @@ const socket = async (io) => {
   }
 };
 
-module.exports=socket;
+module.exports = socket;
