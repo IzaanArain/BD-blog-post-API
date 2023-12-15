@@ -7,7 +7,8 @@ const socket = async (io) => {
   try {
 
     io.on("connection", (socket) => {
-     
+      console.log("A user connected", socket.id);
+
       socket.on("get_all_messages", async (data) => {
         try {
           const { sender_id, receiver_id } = data;
@@ -44,7 +45,7 @@ const socket = async (io) => {
             //   sender_id: new mongoose.Types.ObjectId(sender_id),
             //   receiver_id: new mongoose.Types.ObjectId(receiver_id),
           });
-          console.log(chat_messages.length);
+          // console.log(chat_messages.length);
           if (chat_messages.length > 0) {
             io.to(room).emit("get_all_messages", chat_messages);
           } else {
@@ -90,8 +91,8 @@ const socket = async (io) => {
           });
           const new_message = await message.save();
           // console.log("message created",new_message)
-          socket.to(room).emit("receive_message", new_message);
-          // io.to(room).emit("receive_message", new_message);
+          // socket.to(room).emit("receive_message", new_message);
+          io.to(room).emit("receive_message", new_message);
         } catch (err) {
           console.error("Error", err.message);
           socket.emit("error_message", err.message);
@@ -148,7 +149,7 @@ const socket = async (io) => {
       // });
 
       socket.on("disconnect", () => {
-        // console.log("A user disconnected", socket.id);
+        console.log("A user disconnected", socket.id);
       });
     });
   } catch (err) {
