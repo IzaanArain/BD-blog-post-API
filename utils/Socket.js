@@ -44,7 +44,7 @@ const socket = async (io) => {
             //   sender_id: new mongoose.Types.ObjectId(sender_id),
             //   receiver_id: new mongoose.Types.ObjectId(receiver_id),
           });
-          console.log(chat_messages.length);
+          // console.log(chat_messages.length);
           if (chat_messages.length > 0) {
             io.to(room).emit("get_all_messages", chat_messages);
           } else {
