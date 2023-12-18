@@ -8,6 +8,7 @@ const http = require("http");
 const cors = require("cors");
 const socket=require("./utils/Socket");
 const newSocket=require("./utils/NewSocket");
+const ChatSocket=require("./utils/ChatSocket")
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
@@ -20,7 +21,8 @@ const io = new Server(server,{
   },
 });
 // socket(io);
-newSocket(io);
+// newSocket(io);
+ChatSocket(io);
 app.use(express.json());                              
 app.use(express.urlencoded({ extended: false }));
 // app.use(requstDetails)
