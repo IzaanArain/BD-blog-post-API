@@ -80,8 +80,6 @@ const socket = async (io) => {
           // const room = `room${sender_id}${receiver_id}`;
           const room = `room${[sender_id, receiver_id].sort().join("")}`;
           // socket.join(room);
-          // console.log("sender", room);
-          // console.log("room created",socket.rooms);
           const message = new Message({
             sender_id: sender_id,
             receiver_id: receiver_id,
@@ -89,11 +87,10 @@ const socket = async (io) => {
             time: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
           });
           const new_message = await message.save();
-          // console.log("message created",new_message)
           // socket.to(room).emit("receive_message", new_message);
           io.to(room).emit("receive_message", new_message);
         } catch (err) {
-          console.error("Error", err.message);
+          // console.error("Error", err.message);
           socket.emit("error_message", err.message);
         }
       });
@@ -122,8 +119,6 @@ const socket = async (io) => {
           // const room = `room${receiver_id}${sender_id}`;
           const room = `room${[sender_id, receiver_id].sort().join("")}`;
           // socket.join(room);
-          // console.log("receiver", room);
-          // console.log("room created",socket.rooms);
           const message = new Message({
             sender_id: sender_id,
             receiver_id: receiver_id,

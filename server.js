@@ -19,7 +19,8 @@ const io = new Server(server,{
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
-socket(io);
+// socket(io);
+newSocket(io);
 app.use(express.json());                              
 app.use(express.urlencoded({ extended: false }));
 // app.use(requstDetails)
