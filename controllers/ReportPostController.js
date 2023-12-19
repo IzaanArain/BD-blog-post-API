@@ -7,7 +7,7 @@ const moment = require("moment");
 const report_post = async (req, res) => {
   try {
     const user_id = req.id;
-    const post_id = req.query.post_id;
+    const post_id = req.body.post_id;
     const reported_text = req.body.text;
     const user = await User.findById(user_id);
     if (!user) {

@@ -159,14 +159,7 @@ const admin_delete_post=async(req,res)=>{
 const admin_block_post=async(req,res)=>{
   
 };
-// deletes and restores comment
-const admin_delete_comment=async(req,res)=>{
 
-};
-// blocks and unblocks comment
-const admin_block_comment=async(req,res)=>{
-
-};
 
 module.exports = {
   admin_delete_user,
@@ -174,6 +167,4 @@ module.exports = {
   get_all_users,
   admin_delete_post,
   admin_block_post,
-  admin_delete_comment,
-  admin_block_comment
 };

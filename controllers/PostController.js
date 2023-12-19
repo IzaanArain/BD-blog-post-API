@@ -267,7 +267,6 @@ const get_all_posts = async (req, res) => {
         message: "user not found",
       });
     }
-    // const posts=await Post.find({});
     // const posts = await Post.aggregate([
     //   {
     //     $lookup: {
@@ -319,6 +318,38 @@ const get_all_posts = async (req, res) => {
     
     const posts = await Post.aggregate([
       {
+        $lookup:{
+          from:"reports",
+          let:{postId:"$_id"},
+          pipeline:[
+            {
+              $match:{
+                $expr:{
+                  $and:[
+                    {$eq:["$user_id",new mongoose.Types.ObjectId(user_id)]},
+                    {$eq:["$post_id","$$postId"]}
+                  ]
+                }
+              }
+            }
+          ],
+          as:"reported_post"
+        }
+      },
+      {
+        $unwind:{
+          path:"$reported_post",
+          preserveNullAndEmptyArrays:true
+        }
+      },
+      {
+        $match:{
+          $expr:{
+            $ne:["$_id","$reported_post.post_id"]
+          }
+        }
+      },
+      {
         $lookup: {
           from: "users",
           localField: "post_author",
@@ -347,28 +378,28 @@ const get_all_posts = async (req, res) => {
           as: "comments",
         },
       },
-      {
-        $addFields: {
-          author_name: "$result.name",
-          author_email: "$result.email",
-          autor_image: "$result.image",
-          my_post: {
-            $cond: {
-              if: {
-                $eq: ["$result._id", new mongoose.Types.ObjectId(user_id)],
-              },
-              then: 1,
-              else: 0,
-            },
-          },
-          total_reactions: {
-            $size: "$reactions",
-          },
-          total_comments: {
-            $size: "$comments",
-          },
-        },
-      },
+      // {
+      //   $addFields: {
+      //     author_name: "$result.name",
+      //     author_email: "$result.email",
+      //     autor_image: "$result.image",
+      //     my_post: {
+      //       $cond: {
+      //         if: {
+      //           $eq: ["$result._id", new mongoose.Types.ObjectId(user_id)],
+      //         },
+      //         then: 1,
+      //         else: 0,
+      //       },
+      //     },
+      //     total_reactions: {
+      //       $size: "$reactions",
+      //     },
+      //     total_comments: {
+      //       $size: "$comments",
+      //     },
+      //   },
+      // },
       {
         $unset: ["result"],
       },
