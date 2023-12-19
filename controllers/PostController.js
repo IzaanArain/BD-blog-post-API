@@ -260,6 +260,13 @@ const get_user_posts = async (req, res) => {
 const get_all_posts = async (req, res) => {
   try {
     const user_id = req.id;
+    const page = req?.query?.page || 1;
+    const limit = req?.query?.limit;
+    const effectiveLimit =
+      limit && !isNaN(parseInt(limit)) && parseInt(limit) > 0
+        ? parseInt(limit)
+        : Number.MAX_SAFE_INTEGER;
+    const startIndex = (page - 1) * effectiveLimit;
     const user = await User.findById(user_id);
     if (!user) {
       return res.status(400).send({
@@ -315,39 +322,39 @@ const get_all_posts = async (req, res) => {
     //     },
     //   },
     // ]);
-    
+
     const posts = await Post.aggregate([
       {
-        $lookup:{
-          from:"reports",
-          let:{postId:"$_id"},
-          pipeline:[
+        $lookup: {
+          from: "reports",
+          let: { postId: "$_id" },
+          pipeline: [
             {
-              $match:{
-                $expr:{
-                  $and:[
-                    {$eq:["$user_id",new mongoose.Types.ObjectId(user_id)]},
-                    {$eq:["$post_id","$$postId"]}
-                  ]
-                }
-              }
-            }
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$user_id", new mongoose.Types.ObjectId(user_id)] },
+                    { $eq: ["$post_id", "$$postId"] },
+                  ],
+                },
+              },
+            },
           ],
-          as:"reported_post"
-        }
+          as: "reported_post",
+        },
       },
       {
-        $unwind:{
-          path:"$reported_post",
-          preserveNullAndEmptyArrays:true
-        }
+        $unwind: {
+          path: "$reported_post",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
-        $match:{
-          $expr:{
-            $ne:["$_id","$reported_post.post_id"]
-          }
-        }
+        $match: {
+          $expr: {
+            $ne: ["$_id", "$reported_post.post_id"],
+          },
+        },
       },
       {
         $lookup: {
@@ -378,30 +385,36 @@ const get_all_posts = async (req, res) => {
           as: "comments",
         },
       },
-      // {
-      //   $addFields: {
-      //     author_name: "$result.name",
-      //     author_email: "$result.email",
-      //     autor_image: "$result.image",
-      //     my_post: {
-      //       $cond: {
-      //         if: {
-      //           $eq: ["$result._id", new mongoose.Types.ObjectId(user_id)],
-      //         },
-      //         then: 1,
-      //         else: 0,
-      //       },
-      //     },
-      //     total_reactions: {
-      //       $size: "$reactions",
-      //     },
-      //     total_comments: {
-      //       $size: "$comments",
-      //     },
-      //   },
-      // },
+      {
+        $addFields: {
+          author_name: "$result.name",
+          author_email: "$result.email",
+          autor_image: "$result.image",
+          my_post: {
+            $cond: {
+              if: {
+                $eq: ["$result._id", new mongoose.Types.ObjectId(user_id)],
+              },
+              then: 1,
+              else: 0,
+            },
+          },
+          total_reactions: {
+            $size: "$reactions",
+          },
+          total_comments: {
+            $size: "$comments",
+          },
+        },
+      },
       {
         $unset: ["result"],
+      },
+      {
+        $skip: parseInt(startIndex),
+      },
+      {
+        $limit: parseInt(effectiveLimit),
       },
     ]);
     if (posts) {
