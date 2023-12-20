@@ -46,12 +46,12 @@ const socket = async (io) => {
             // .sort({ createdAt: -1 });
           if (chat_messages.length > 0) {
             io.to(room).emit("response", {
-              object_type: "get_all__messages",
+              object_type: "get_all_messages",
               data: chat_messages,
             });
           } else {
             io.to(room).emit("response", {
-              object_type: "get_all__messages",
+              object_type: "get_all_messages",
               data: [],
             });
           }
@@ -118,7 +118,7 @@ const socket = async (io) => {
         } catch (err) {
           console.error("Error", err.message);
           // socket.emit("error_message", err.message);
-          io.to(sender_room).to(receiver_room).emit("error", {
+          io.to(sender_room).emit("error", {
             object_type: "get_message",
             message: err.message,
           });
