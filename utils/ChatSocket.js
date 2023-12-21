@@ -87,18 +87,6 @@ const socket = async (io) => {
           if (!receiver) {
             throw new Error("receiver not found");
           }
-          // const chat_messages = await Message.find({
-          //   $or: [
-          //     {
-          //       sender_id: sender_id,
-          //       receiver_id: receiver_id,
-          //     },
-          //     {
-          //       sender_id: receiver_id,
-          //       receiver_id: sender_id,
-          //     },
-          //   ],
-          // })
           const message = new Message({
             sender_id: sender_id,
             receiver_id: receiver_id,
@@ -110,7 +98,6 @@ const socket = async (io) => {
             "sender_id receiver_id",
             "name image"
           );
-          // socket.to(room).emit("receive_message", new_message);
           io.to(sender_room).to(receiver_room).emit("response", {
             object_type: "get_message",
             data: new_message,
